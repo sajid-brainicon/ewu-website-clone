@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Faculty - East West University{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <h1 class="fw-bold mb-4 text-center">Meet Our Faculty</h1>
+        <div class="row g-4">
+            {% for member in faculty %}
+            <div class="col-md-4 col-sm-6">
+                <div class="card shadow-sm h-100 text-center">
+                    <img src="/static/{{ member.image }}" class="card-img-top p-3 rounded-circle mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;" alt="{{ member.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ member.name }}</h5>
+                        <p class="text-muted">{{ member.designation }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}East West University{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sticky Navbar -->
+   <nav class="navbar navbar-expand-lg sticky-top" id="mainNavbar">
+    <div class="container">
+
+        <!-- ── Brand Logo ── -->
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'home' %}">
+            <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png"
+                 alt="EWU Logo"
+                 class="navbar-logo"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <!-- Fallback text badge shown when image fails to load -->
+            <span class="navbar-logo-fallback" style="display:none;">
+                <span class="logo-badge">EWU</span>
+                <span class="logo-text-wrap">
+                    <span class="logo-title">East West University</span>
+                    <span class="logo-sub">Excellence in Education</span>
+                </span>
+            </span>
+        </a>
+
+        <!-- ── Mobile Toggle ── -->
+        <button class="navbar-toggler border-0" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNav"
+                aria-controls="mainNav"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- ── Nav Links ── -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1 mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about' %}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'admissions' %}">Admissions</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'departments' %}">Departments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'faculty' %}">Faculty</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'programs' %}">Programs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'research' %}">Research</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#"
+                       role="button"
+                       data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        News &amp; Notices
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'news_list' %}">
+                                <i class="fas fa-newspaper me-2 text-primary"></i>News
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'notice_list' %}">
+                                <i class="fas fa-bell me-2 text-primary"></i>Notices
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'gallery' %}">Gallery</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'contact' %}">Contact</a>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white pt-5 pb-3 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="fw-bold"><i class="fa-solid fa-graduation-cap me-2"></i>EW University</h5>
+                    <p>Empowering minds, shaping futures. A leading institution committed to academic excellence and innovation.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h6>Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'about' %}" class="text-white-50">About Us</a></li>
+                        <li><a href="{% url 'admissions' %}" class="text-white-50">Admissions</a></li>
+                        <li><a href="{% url 'programs' %}" class="text-white-50">Programs</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-white-50">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6>Contact Info</h6>
+                    <p class="text-white-50 mb-1"><i class="fa-solid fa-map-marker-alt me-2"></i> A/2, Jahurul Islam Avenue, Dhaka</p>
+                    <p class="text-white-50 mb-1"><i class="fa-solid fa-phone me-2"></i> +880-2-1234567</p>
+                    <p class="text-white-50"><i class="fa-solid fa-envelope me-2"></i> info@ewuniversity.edu</p>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h6>Follow Us</h6>
+                    <div class="social-icons">
+                        <a href="#" class="text-white me-3"><i class="fa-brands fa-facebook fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fa-brands fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white me-3"><i class="fa-brands fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fa-brands fa-youtube fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="border-secondary">
+            <div class="text-center text-white-50">
+                <small>&copy; 2026 East West University. All rights reserved.</small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/script.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

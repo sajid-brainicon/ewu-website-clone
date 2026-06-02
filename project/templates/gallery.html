@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Gallery - East West University{% endblock %}
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <h1 class="fw-bold mb-4 text-center">Photo Gallery</h1>
+        <div class="row g-3" id="gallery">
+            {% for img in gallery_images %}
+            <div class="col-md-4 col-sm-6">
+                <a href="#" class="gallery-item" data-bs-toggle="modal" data-bs-target="#lightboxModal" data-img="{% static img %}">
+                    <img src="{% static img %}" class="img-fluid rounded shadow-sm" alt="Gallery">
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Lightbox Modal -->
+<div class="modal fade" id="lightboxModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body text-center">
+                <img src="" id="lightboxImage" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

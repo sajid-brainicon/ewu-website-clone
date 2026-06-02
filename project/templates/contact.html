@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Contact Us - East West University{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+      <h1 class="fw-bold" style="color: var(--ewu-blue, #1a3a8f);">Contact Us</h1>
+      <p class="lead">We’d love to hear from you. Reach out for admissions, inquiries, or support.</p>
+    </div>
+
+    <div class="row g-5">
+      <!-- Left Column: Contact Info Cards + Form -->
+      <div class="col-lg-6">
+        <!-- Contact info cards (theme‑consistent) -->
+        <div class="row g-3 mb-5">
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #f8f9fa;">
+              <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fa-solid fa-location-dot fa-2x" style="color: #e8a300;"></i>
+              </div>
+              <h5>Address</h5>
+              <p class="small mb-0">A/2, Jahurul Islam Avenue,<br>Aftabnagar, Dhaka-1212, Bangladesh</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #f8f9fa;">
+              <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fa-solid fa-phone fa-2x" style="color: #e8a300;"></i>
+              </div>
+              <h5>Phone</h5>
+              <p class="small mb-0">+880-966-6775577<br>Ext. 234</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm text-center p-3" style="background-color: #f8f9fa;">
+              <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fa-regular fa-envelope fa-2x" style="color: #e8a300;"></i>
+              </div>
+              <h5>Email</h5>
+              <p class="small mb-0">admissions@ewubd.edu<br>info@ewubd.edu</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <h4 class="fw-semibold mb-3" style="color: var(--ewu-blue, #1a3a8f);">Send Us a Message</h4>
+        <form id="contactForm" class="needs-validation" novalidate>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <input type="text" class="form-control" id="name" placeholder="Your Full Name *" required>
+              <div class="invalid-feedback">Please enter your name.</div>
+            </div>
+            <div class="col-md-6">
+              <input type="email" class="form-control" id="email" placeholder="Email Address *" required>
+              <div class="invalid-feedback">A valid email is required.</div>
+            </div>
+            <div class="col-12">
+              <input type="tel" class="form-control" id="phone" placeholder="Phone Number (optional)">
+            </div>
+            <div class="col-12">
+              <select class="form-select" id="subject">
+                <option selected disabled>-- Select Inquiry Type --</option>
+                <option>Admission Information</option>
+                <option>Scholarship & Financial Aid</option>
+                <option>General Inquiry</option>
+                <option>Complaint / Suggestion</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <textarea class="form-control" id="message" rows="4" placeholder="Your Message *" required></textarea>
+              <div class="invalid-feedback">Please enter your message.</div>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-warning px-4 py-2 fw-semibold">Send Message <i class="fa-solid fa-paper-plane ms-2"></i></button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Success/error alert (hidden by default) -->
+        <div id="formAlert" class="alert mt-3 d-none" role="alert"></div>
+      </div>
+
+      <!-- Right Column: Map & Office Hours -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div class="ratio ratio-4x3">
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3650.8355752757416!2d90.40663431532588!3d23.788514684570745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755c70b72f7b8b1%3A0xfc87a1c9e0b2e7a4!2sEast%20West%20University!5e0!3m2!1sen!2sbd!4v1650000000000" allowfullscreen="" loading="lazy" class="rounded"></iframe>
+            </div>
+          </div>
+        </div>
+
+        <!-- Office Hours & Quick Contacts -->
+        <div class="card border-0 shadow-sm" style="background-color: #f8f9fa;">
+          <div class="card-body">
+            <h5 class="fw-bold mb-3"><i class="fa-regular fa-clock me-2" style="color: #e8a300;"></i> Office Hours</h5>
+            <ul class="list-unstyled mb-4">
+              <li class="d-flex justify-content-between mb-2"><span>Sunday – Wednesday:</span> <strong>9:00 AM – 5:00 PM</strong></li>
+              <li class="d-flex justify-content-between mb-2"><span>Thursday:</span> <strong>9:00 AM – 3:00 PM</strong></li>
+              <li class="d-flex justify-content-between"><span>Friday & Saturday:</span> <strong>Closed</strong></li>
+            </ul>
+            <hr>
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-building me-2" style="color: #e8a300;"></i> Departmental Contacts</h5>
+            <p class="mb-1"><strong>Admissions Office:</strong> +880-966-6775577, Ext. 112</p>
+            <p class="mb-1"><strong>Registrar's Office:</strong> +880-966-6775577, Ext. 105</p>
+            <p class="mb-0"><strong>Student Affairs:</strong> +880-966-6775577, Ext. 120</p>
+          </div>
+        </div>
+
+        <!-- FAQ Accordion (optional, adds value) -->
+        <div class="card border-0 shadow-sm mt-4">
+          <div class="card-body">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-circle-question me-2" style="color: #e8a300;"></i> Frequently Asked</h5>
+            <div class="accordion" id="faqAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                    How do I apply for admission?
+                  </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body small">Visit our <a href="/admissions/">Admissions page</a> for online application, requirements, and deadlines.</div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                    What scholarships are available?
+                  </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body small">EWU offers merit‑based and need‑based scholarships up to 100%. Contact <strong>financial_aid@ewubd.edu</strong>.</div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                    Can I visit the campus?
+                  </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                  <div class="accordion-body small">Yes! Campus tours are available Sunday–Thursday, 10 AM – 3 PM. Please call ahead to schedule.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bootstrap JS for accordion & form validation (if not already loaded in base.html) -->
+<script>
+  (function() {
+    // Bootstrap 5 form validation
+    const form = document.getElementById('contactForm');
+    const alertDiv = document.getElementById('formAlert');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (form.checkValidity() === true) {
+        // Simulate sending (you can replace with actual AJAX)
+        alertDiv.classList.remove('d-none', 'alert-danger');
+        alertDiv.classList.add('alert-success');
+        alertDiv.innerHTML = '<i class="fa-regular fa-circle-check me-2"></i> Thank you! Your message has been sent. We will get back to you shortly.';
+        form.reset();
+        form.classList.remove('was-validated');
+        // Hide alert after 5 seconds
+        setTimeout(() => alertDiv.classList.add('d-none'), 5000);
+      } else {
+        form.classList.add('was-validated');
+        alertDiv.classList.add('d-none');
+      }
+    });
+  })();
+</script>
+
+<!-- Optional: Add Bootstrap JS if not already in base -->
+{% if not request|default:False %}
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endif %}
+
+<style>
+  /* Ensure form controls have proper focus ring that matches theme */
+  .form-control:focus, .form-select:focus {
+    border-color: #e8a300;
+    box-shadow: 0 0 0 0.2rem rgba(232, 163, 0, 0.25);
+  }
+  .btn-warning {
+    background-color: #e8a300;
+    border-color: #e8a300;
+    color: #212529;
+  }
+  .btn-warning:hover {
+    background-color: #c98f00;
+    border-color: #c98f00;
+    color: #000;
+  }
+  .card {
+    border-radius: 1rem;
+  }
+  .accordion-button:not(.collapsed) {
+    background-color: rgba(232, 163, 0, 0.1);
+    color: #1a3a8f;
+  }
+  .accordion-button:focus {
+    box-shadow: none;
+    border-color: rgba(232, 163, 0, 0.5);
+  }
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+</style>
+{% endblock %}
