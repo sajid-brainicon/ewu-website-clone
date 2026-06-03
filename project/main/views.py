@@ -1,31 +1,11 @@
 import datetime
 import json
-
+import requests
 from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-
 from .models import Slider, Notice, News, Event, ImportantDate, ChatMessage
-
-# ── Gemini system prompt ──────────────────────────────────────
-EWU_SYSTEM_PROMPT = """
-You are the official AI Assistant for East West University (EWU), Dhaka, Bangladesh.
-Answer students' questions accurately and helpfully.
-
-Key facts:
-- Location: A/2 Jahurul Islam Avenue, Aftabnagar, Dhaka-1212, Bangladesh
-- Phone: 09666775577 | Email: admissions@ewubd.edu | Website: www.ewubd.edu
-- Vice Chancellor: Professor Shams Rahman
-- Chairperson, Board of Trustees: Professor Dr. Mohammed Farashuddin
-- Departments: CSE, EEE, BBA, Pharmacy, Economics, English, Law, Architecture
-- 29 programs: BSc CSE, BSc EEE, BBA, MBA, EMBA, BSc Pharmacy, LLB, etc.
-- Scholarships: 50% to 100% merit-based during admission
-- MBA deadline (Summer 2026): April 17 | EMBA deadline: April 18
-- For unknown fees/schedules, direct users to admissions@ewubd.edu
-Keep answers concise, friendly, professional.
-Reply in the same language the user writes in.
-""".strip()
 
 
 # ══════════════════════════════════════════
@@ -73,14 +53,14 @@ def contact(request):
 
 def departments(request):
     departments_list = [
-        {'name': 'Computer Science & Engineering',      'icon': 'fa-laptop-code',     'desc': 'AI, ML, software engineering and more.'},
-        {'name': 'Electrical & Electronic Engineering', 'icon': 'fa-bolt',            'desc': 'Power systems, electronics, and telecom.'},
-        {'name': 'Business Administration',             'icon': 'fa-chart-line',      'desc': 'Management, finance, marketing.'},
-        {'name': 'Pharmacy',                            'icon': 'fa-capsules',        'desc': 'Pharmaceutical sciences and clinical research.'},
-        {'name': 'Economics',                           'icon': 'fa-coins',           'desc': 'Micro/macro economics and econometrics.'},
-        {'name': 'English',                             'icon': 'fa-book-open',       'desc': 'Language, literature, and linguistics.'},
-        {'name': 'Law',                                 'icon': 'fa-gavel',           'desc': 'Legal studies and justice administration.'},
-        {'name': 'Architecture',                        'icon': 'fa-drafting-compass','desc': 'Design, planning, and sustainable architecture.'},
+        {'name': 'Computer Science & Engineering',      'icon': 'fa-laptop-code',      'desc': 'AI, ML, software engineering and more.'},
+        {'name': 'Electrical & Electronic Engineering', 'icon': 'fa-bolt',             'desc': 'Power systems, electronics, and telecom.'},
+        {'name': 'Business Administration',             'icon': 'fa-chart-line',       'desc': 'Management, finance, marketing.'},
+        {'name': 'Pharmacy',                            'icon': 'fa-capsules',         'desc': 'Pharmaceutical sciences and clinical research.'},
+        {'name': 'Economics',                           'icon': 'fa-coins',            'desc': 'Micro/macro economics and econometrics.'},
+        {'name': 'English',                             'icon': 'fa-book-open',        'desc': 'Language, literature, and linguistics.'},
+        {'name': 'Law',                                 'icon': 'fa-gavel',            'desc': 'Legal studies and justice administration.'},
+        {'name': 'Architecture',                        'icon': 'fa-drafting-compass', 'desc': 'Design, planning, and sustainable architecture.'},
     ]
     return render(request, 'departments.html', {'departments': departments_list})
 
@@ -125,83 +105,142 @@ def news_detail(request, pk):
 #  CHAT VIEW
 # ══════════════════════════════════════════
 
-def _smart_fallback(message: str) -> str:
-    msg = message.lower()
-    if any(w in msg for w in ['admission', 'apply', 'enroll']):
-        return "To apply, visit our Admissions page or email admissions@ewubd.edu. Call 09666775577 for help."
-    if any(w in msg for w in ['scholarship', 'waiver', 'financial']):
-        return "EWU offers merit scholarships from 50% to 100% of tuition during admission."
-    if any(w in msg for w in ['fee', 'tuition', 'cost']):
-        return "Fees vary by department. Please email admissions@ewubd.edu for exact figures."
-    if any(w in msg for w in ['hello', 'hi', 'hey', 'salam']):
-        return "Hello! I'm the EWU AI Assistant. How can I help you today?"
-    return "For detailed information please contact admissions@ewubd.edu or call 09666775577 (Sun–Thu, 9 AM–5 PM)."
-
-
 @csrf_exempt
 def chat_view(request):
-    if request.method != 'POST':
-        return JsonResponse({'error': 'POST required.'}, status=405)
+    if request.method != "POST":
+        return JsonResponse({"error": "Invalid method"}, status=405)
 
     try:
         data = json.loads(request.body)
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        return JsonResponse({'reply': 'Invalid request format.'}, status=400)
+        user_message = data.get("message", "").strip()
+        if not user_message:
+            return JsonResponse({"reply": "Please type a message."})
 
-    user_message = (data.get('message') or '').strip()
-    if not user_message:
-        return JsonResponse({'reply': 'Please type a message.'})
+        # Session
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
 
-    if not request.session.session_key:
-        request.session.create()
-    session_key = request.session.session_key
+        # Save user message
+        ChatMessage.objects.create(
+            session_key=session_key,
+            sender="user",
+            message=user_message
+        )
 
-    ChatMessage.objects.create(session_key=session_key, sender='user', message=user_message)
-
-    history = list(
-        ChatMessage.objects
-        .filter(session_key=session_key)
-        .order_by('-created_at')[:11]
-    )
-    history.reverse()
-    history = history[:-1]
-
-    reply = None
-    api_key = getattr(settings, 'GEMINI_API_KEY', None)
-
-    if api_key and api_key != 'GEMINI_API_KEY':
+        # Get RAG context from PDF
+        context = ""
         try:
-            from google import genai
-            from google.genai import types
+            from .rag import get_relevant_context
+            context = get_relevant_context(user_message)
+            print(f"=== CONTEXT LENGTH: {len(context)} ===")
+            print(f"=== CONTEXT PREVIEW: {context[:500]} ===")  # show what was found
+            print(f"RAG context length: {len(context)}")
+        except Exception as rag_err:
+            print(f"RAG error (continuing without context): {rag_err}")
 
-            client = genai.Client(api_key=api_key)
+        # Get conversation history
+        history = list(ChatMessage.objects.filter(
+            session_key=session_key
+        ).order_by('-created_at')[:6])[::-1]
 
-            contents = []
-            for h in history:
-                role = 'user' if h.sender == 'user' else 'model'
-                contents.append(types.Content(role=role, parts=[types.Part(text=h.message)]))
-            contents.append(types.Content(role='user', parts=[types.Part(text=user_message)]))
+        history_text = ""
+        for h in history[:-1]:
+            role = "User" if h.sender == "user" else "Assistant"
+            history_text += f"{role}: {h.message}\n"
 
-            response = client.models.generate_content(
-                model = genai.GenerativeModel("gemini-2.5-flash"),
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=EWU_SYSTEM_PROMPT,
-                    max_output_tokens=500,
-                    temperature=0.7,
-                ),
-            )
-            reply = response.text.strip() if response.text else None
+        # Build strict RAG prompt
+        if context:
+            prompt = f"""You are the official AI Assistant for East West University (EWU), Dhaka, Bangladesh.
 
-        except ImportError:
-            print('[EWU Chat] Run: pip install google-genai')
-        except Exception as e:
-            print(f'[EWU Chat] Gemini error: {type(e).__name__}: {e}')
-    else:
-        print('[EWU Chat] GEMINI_API_KEY not set in settings.py')
+STRICT RULES:
+1. Answer ONLY using the CONTEXT provided below.
+2. Do NOT use your training data or outside knowledge.
+3. If the answer is NOT in the context, say exactly:
+   "I don't have that information in my documents. Please contact EWU at 09666775577 or email info@ewubd.edu"
+4. Keep answers concise and friendly.
+5. Reply in the same language the user writes in (English or Bengali).
 
-    if not reply:
-        reply = _smart_fallback(user_message)
+CONTEXT FROM EWU OFFICIAL DOCUMENTS:
+{context}
 
-    ChatMessage.objects.create(session_key=session_key, sender='bot', message=reply)
-    return JsonResponse({'reply': reply})
+CONVERSATION HISTORY:
+{history_text}
+User: {user_message}
+Assistant:"""
+        else:
+            # No PDF context — use basic facts only
+            prompt = f"""You are the official AI Assistant for East West University (EWU), Dhaka, Bangladesh.
+
+STRICT RULES:
+1. Only answer using the facts listed below. Do NOT make up information.
+2. If you don't know the answer from these facts, say:
+   "I don't have that information. Please contact EWU at 09666775577 or email info@ewubd.edu"
+3. Keep answers concise and friendly.
+4. Reply in the same language the user writes in (English or Bengali).
+
+KNOWN EWU FACTS:
+- Location: A/2 Jahurul Islam Avenue, Aftabnagar, Dhaka-1212, Bangladesh
+- Phone: 09666775577 | Hotline: +8801755587224
+- Email: info@ewubd.edu | Admissions: admissions@ewubd.edu
+- Website: www.ewubd.edu
+- Vice Chancellor: Professor Shams Rahman
+- Chairperson, Board of Trustees: Professor Dr. Mohammed Farashuddin
+- Departments: CSE, EEE, BBA, Pharmacy, Economics, English, Law, Civil Engineering, GEB
+- Programs: BSc CSE, BSc EEE, BBA, MBA, EMBA, BSc Pharmacy, LLB and more (29 total)
+- Scholarships: 50% to 100% merit-based during admission
+- Office hours: Sunday to Thursday, 9 AM to 5 PM
+
+CONVERSATION HISTORY:
+{history_text}
+User: {user_message}
+Assistant:"""
+
+        # Call Ollama
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={
+                "model": "llama3.2",
+                "prompt": prompt,
+                "stream": False,
+                "options": {
+                    "temperature": 0.3,   # lower = more focused on context
+                    "num_predict": 500,
+                    "top_p": 0.9,
+                }
+            },
+            timeout=120
+        )
+
+        if response.status_code == 200:
+            reply = response.json().get("response", "").strip()
+            if not reply:
+                reply = "I couldn't generate a response. Please try again."
+        else:
+            print(f"Ollama error: {response.status_code} {response.text}")
+            reply = "Sorry, the AI model is not responding. Please try again."
+
+        # Save bot reply
+        ChatMessage.objects.create(
+            session_key=session_key,
+            sender="bot",
+            message=reply
+        )
+
+        return JsonResponse({"reply": reply})
+
+    except requests.exceptions.ConnectionError:
+        return JsonResponse({
+            "reply": "Cannot connect to Ollama. Make sure Ollama is running on your PC."
+        })
+    except requests.exceptions.Timeout:
+        return JsonResponse({
+            "reply": "The AI is taking too long to respond. Please try again."
+        })
+    except Exception as e:
+        import traceback
+        print(f"CHAT ERROR: {e}")
+        print(traceback.format_exc())
+        return JsonResponse({
+            "reply": "Something went wrong. Please try again."
+        })
