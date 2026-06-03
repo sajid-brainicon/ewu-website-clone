@@ -88,6 +88,14 @@
       </div>
       <a href="/contact/" class="nav-link btn-helpdesk">Contact</a>
     </div>
+    <div class="admission-countdown">
+    <span class="countdown-semester">
+        FALL 2026
+    </span>
+    <span class="countdown-time">
+        Aug 15 Deadline
+    </span>
+</div>
   </div>
 </nav>
 
@@ -243,6 +251,8 @@
     </div>
   </div>
 </section>
+
+
 
 <!-- STATS -->
 <section class="stats-section">
@@ -458,7 +468,7 @@
   <div class="messages-inner">
     <div class="message-card">
       <div class="msg-photo-wrap">
-        <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/chairman.jpg"
+        <img src="./static/images/vc.png"
              alt="Chairman" class="msg-photo"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="msg-photo-fallback">👤</div>
@@ -477,7 +487,7 @@
   <div class="messages-inner">
     <div class="message-card">
       <div class="msg-photo-wrap">
-        <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/vc.jpg"
+        <img src="./static/images/cc.jpg" 
              alt="VC" class="msg-photo"
              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="msg-photo-fallback">👤</div>
@@ -641,148 +651,39 @@
   </div>
   
 </footer>
-
 <!-- FLOATING BTNS -->
 <div class="floating-btns">
-  <button class="float-btn float-btn--enquire" onclick="openEnquiry()"><i class="fa-regular fa-envelope"></i> Enquire</button>
-  <button class="float-btn float-btn--top" onclick="window.scrollTo({top:0,behavior:'smooth'})"><i class="fa-solid fa-arrow-up"></i> Top</button>
+  <button class="float-btn float-btn--chat" onclick="toggleChat()">
+    <i class="fa-solid fa-comments"></i> Live Chat
+  </button>
+  <button class="float-btn float-btn--top"
+          onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="fa-solid fa-arrow-up"></i> Top
+  </button>
 </div>
 
-<!-- ENQUIRY MODAL -->
-<div class="modal-overlay" id="enquiryModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeEnquiry()">&times;</button>
-    <h3>Enquire Now</h3>
-    <input type="text" placeholder="Your Name *" class="modal-input">
-    <input type="email" placeholder="Email Address *" class="modal-input">
-    <input type="tel" placeholder="Phone Number" class="modal-input">
-    <select class="modal-input">
-      <option value="">Select Program of Interest</option>
-      <option>BSc in CSE</option><option>BBA</option><option>MBA</option>
-      <option>EMBA</option><option>BSc in EEE</option><option>BSc in Pharmacy</option>
-    </select>
-    <textarea placeholder="Your Message" rows="3" class="modal-input"></textarea>
-    <button class="modal-submit" onclick="alert('Enquiry sent! We will contact you soon.'); closeEnquiry();">Send Enquiry</button>
+<!-- LIVE CHAT WIDGET -->
+<div class="chat-widget" id="chatWidget">
+  <div class="chat-header">
+    <span>🎓 EWU AI Assistant</span>
+    <button onclick="toggleChat()">&times;</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message bot">
+      👋 Welcome to East West University! I'm your AI assistant. Ask me anything about admissions, programs, scholarships, or campus life.
+    </div>
+  </div>
+  <div class="chat-footer">
+    <input type="text" placeholder="Type your message..." id="chatInput">
+    <button onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
   </div>
 </div>
 
-<script>
-// ── SLIDER ──
-const slides = document.querySelectorAll('.slide');
-const dotsContainer = document.getElementById('sliderDots');
-let current = 0, timer;
+<!-- EXTERNAL JAVASCRIPT -->
+<script src="{% static 'js/script.js' %}"></script>
 
-slides.forEach((_, i) => {
-  const dot = document.createElement('button');
-  dot.className = 'dot' + (i === 0 ? ' active' : '');
-  dot.setAttribute('role', 'tab');
-  dot.onclick = () => goSlide(i);
-  dotsContainer.appendChild(dot);
-});
-
-function goSlide(n) {
-  slides[current].classList.remove('active');
-  dotsContainer.children[current].classList.remove('active');
-  current = (n + slides.length) % slides.length;
-  slides[current].classList.add('active');
-  dotsContainer.children[current].classList.add('active');
-  resetTimer();
-}
-function resetTimer() { clearInterval(timer); timer = setInterval(() => goSlide(current + 1), 5000); }
-if (slides.length > 0) {
-  document.getElementById('sliderPrev').onclick = () => goSlide(current - 1);
-  document.getElementById('sliderNext').onclick = () => goSlide(current + 1);
-  resetTimer();
-}
-
-// ── CALENDAR ──
-const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-let calDate = new Date();
-
-function renderCal() {
-  document.getElementById('calYear').textContent = calDate.getFullYear();
-  document.getElementById('calMonth').textContent = monthNames[calDate.getMonth()];
-  const grid = document.getElementById('calGrid');
-  grid.innerHTML = '';
-  ['SUN','MON','TUE','WED','THU','FRI','SAT'].forEach((d, i) => {
-    const el = document.createElement('div');
-    el.className = 'cal-day-name' + (i === 0 ? ' sun' : '');
-    el.textContent = d;
-    grid.appendChild(el);
-  });
-  const first = new Date(calDate.getFullYear(), calDate.getMonth(), 1).getDay();
-  const days = new Date(calDate.getFullYear(), calDate.getMonth() + 1, 0).getDate();
-  const prevDays = new Date(calDate.getFullYear(), calDate.getMonth(), 0).getDate();
-  const today = new Date();
-  for (let i = first - 1; i >= 0; i--) {
-    const el = document.createElement('div');
-    el.className = 'cal-day other-month';
-    el.textContent = prevDays - i;
-    grid.appendChild(el);
-  }
-  for (let d = 1; d <= days; d++) {
-    const el = document.createElement('div');
-    const dow = new Date(calDate.getFullYear(), calDate.getMonth(), d).getDay();
-    let cls = 'cal-day' + (dow === 0 ? ' sun-col' : '');
-    if (d === today.getDate() && calDate.getMonth() === today.getMonth() && calDate.getFullYear() === today.getFullYear()) cls += ' today';
-    el.className = cls;
-    el.textContent = d;
-    grid.appendChild(el);
-  }
-}
-function calPrev() { calDate.setMonth(calDate.getMonth() - 1); renderCal(); }
-function calNext() { calDate.setMonth(calDate.getMonth() + 1); renderCal(); }
-renderCal();
-
-// ── STAT COUNTERS ──
-const counters = document.querySelectorAll('.stat-counter');
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (!e.isIntersecting) return;
-    const el = e.target;
-    const target = +el.dataset.target;
-    const suffix = el.dataset.suffix || '';
-    const display = el.dataset.display;
-    if (display) { el.textContent = display; observer.unobserve(el); return; }
-    let cur = 0;
-    const step = Math.ceil(target / 60);
-    const t = setInterval(() => {
-      cur = Math.min(cur + step, target);
-      el.textContent = cur + suffix;
-      if (cur >= target) clearInterval(t);
-    }, 30);
-    observer.unobserve(el);
-  });
-}, { threshold: 0.3 });
-counters.forEach(c => observer.observe(c));
-
-// ── NOTICE SCROLL ──
-let noticePos = 0;
-function noticeScroll(dir) {
-  const list = document.getElementById('noticeList');
-  noticePos = Math.max(0, Math.min(noticePos + dir * 80, list.scrollHeight - list.clientHeight));
-  list.scrollTop = noticePos;
-}
-
-// ── PARTNERS AUTO-SCROLL ──
-(function() {
-  const track = document.getElementById('partnersTrack');
-  if (!track) return;
-  let pos = 0;
-  setInterval(() => {
-    pos += 1;
-    const half = track.scrollWidth / 2;
-    if (pos >= half) pos = 0;
-    track.style.transform = 'translateX(-' + pos + 'px)';
-  }, 20);
-})();
-
-// ── ENQUIRY MODAL ──
-function openEnquiry() { document.getElementById('enquiryModal').classList.add('open'); }
-function closeEnquiry() { document.getElementById('enquiryModal').classList.remove('open'); }
-document.getElementById('enquiryModal').addEventListener('click', function(e) {
-  if (e.target === this) closeEnquiry();
-});
-</script>
 </body>
 </html>
+
+
+

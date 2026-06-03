@@ -15,4 +15,6 @@ urlpatterns = [
     path('news/<int:pk>/', views.news_detail, name='news_detail'),
     path('contact/', views.contact, name='contact'),
     path('gallery/', views.gallery, name='gallery'),
+    path('chat/', views.chat_view, name='chat'),
+    path('chat/',               views.chat_view,     name='chat'),
 ]

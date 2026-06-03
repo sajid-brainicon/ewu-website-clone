@@ -124,3 +124,4 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR
+GEMINI_API_KEY = 'AQ.Ab8RN6KibyD6aT9hnZfr3OtD_buyszVq_eVApHEsiU0EjK_jYg'  
