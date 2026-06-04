@@ -128,10 +128,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
