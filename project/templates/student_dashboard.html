@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard — EWU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dash-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png" alt="EWU" onerror="this.style.display='none'">
+    <span>Student Panel</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">My Account</div>
+    <a href="#" class="sidebar-link active"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a href="#" class="sidebar-link"><i class="fa-solid fa-user"></i> My Profile</a>
+    <a href="#" class="sidebar-link"><i class="fa-solid fa-graduation-cap"></i> My Courses</a>
+    <a href="#" class="sidebar-link"><i class="fa-solid fa-file-lines"></i> Results</a>
+    <a href="#" class="sidebar-link"><i class="fa-solid fa-calendar-check"></i> Schedule</a>
+    <div class="nav-label">Resources</div>
+    <a href="#" class="sidebar-link"><i class="fa-solid fa-book"></i> Library</a>
+    <a href="/notices/" class="sidebar-link"><i class="fa-solid fa-bullhorn"></i> Notices</a>
+    <a href="/news/" class="sidebar-link"><i class="fa-regular fa-newspaper"></i> News</a>
+    <div class="nav-label">Account</div>
+    <a href="/" class="sidebar-link"><i class="fa-solid fa-house"></i> Back to Website</a>
+    <a href="#" class="sidebar-link sidebar-link--danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+  </nav>
+</aside>
+
+<div class="dash-main">
+  <header class="dash-topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title">Student Dashboard</div>
+    <div class="topbar-user"><i class="fa-regular fa-user"></i><span>Student</span></div>
+  </header>
+
+  <main class="dash-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Welcome to Student Panel</h1>
+        <p class="page-sub">East West University — Student Portal</p>
+      </div>
+    </div>
+
+    <!-- COMING SOON PLACEHOLDER -->
+    <div class="section-card" style="text-align:center; padding: 80px 40px;">
+      <div style="font-size:64px; margin-bottom:20px;">🎓</div>
+      <h2 style="font-size:24px; color:#0a1f44; margin-bottom:12px;">Student Portal Coming Soon</h2>
+      <p style="color:#666; font-size:15px; max-width:480px; margin:0 auto 28px;">
+        The student dashboard is under development. Soon you'll be able to view your courses, results, schedule, and more.
+      </p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="/notices/" class="action-btn action-btn--blue">View Notices</a>
+        <a href="/news/" class="action-btn action-btn--green">View News</a>
+        <a href="/" class="action-btn action-btn--teal">Back to Website</a>
+      </div>
+    </div>
+
+    <!-- QUICK INFO CARDS -->
+    <div class="stat-grid" style="margin-top:24px;">
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon"><i class="fa-solid fa-bullhorn"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ notice_count|default:"—" }}</div>
+          <div class="stat-label">Latest Notices</div>
+        </div>
+        <a href="/notices/" class="stat-link">View →</a>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon"><i class="fa-regular fa-newspaper"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ news_count|default:"—" }}</div>
+          <div class="stat-label">Recent News</div>
+        </div>
+        <a href="/news/" class="stat-link">View →</a>
+      </div>
+      <div class="stat-card stat-card--amber">
+        <div class="stat-icon"><i class="fa-regular fa-calendar"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ event_count|default:"—" }}</div>
+          <div class="stat-label">Upcoming Events</div>
+        </div>
+        <a href="/" class="stat-link">View →</a>
+      </div>
+      <div class="stat-card stat-card--teal">
+        <div class="stat-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ date_count|default:"—" }}</div>
+          <div class="stat-label">Important Dates</div>
+        </div>
+        <a href="/" class="stat-link">View →</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}</script>
+</body>
+</html>

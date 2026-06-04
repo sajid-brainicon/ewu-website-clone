@@ -1,0 +1,110 @@
+{% extends "admin_base.html" %}
+{% block title %}News{% endblock %}
+{% block page_title %}News{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'custom_admin:news_create' %}" class="btn btn-primary">
+  <i class="fa-solid fa-plus"></i> New Article
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <i class="fa-solid fa-newspaper" style="color:#22c55e;font-size:14px;"></i>
+    <h2>All News Articles</h2>
+    <form method="GET" style="margin-left:auto;">
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" name="q" placeholder="Search news…" value="{{ search_query }}">
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    {% if page_obj.object_list %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Published</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for article in page_obj %}
+        <tr>
+          <td style="color:var(--muted);font-size:12.5px;width:50px;">{{ forloop.counter }}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              {% if article.image %}
+              <img src="{{ article.image.url }}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+              {% else %}
+              <div style="width:44px;height:44px;background:var(--bg3);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid fa-image" style="color:var(--muted);font-size:16px;"></i>
+              </div>
+              {% endif %}
+              <div style="min-width:0;">
+                <div class="td-title">{{ article.title }}</div>
+                {% if article.content %}
+                <div style="font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;">{{ article.content|truncatechars:80 }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </td>
+          <td class="td-date">{{ article.created_at|date:"M d, Y · g:i A" }}</td>
+          <td>
+            <div class="td-actions" style="justify-content:flex-end;">
+              <a href="{% url 'custom_admin:news_edit' article.pk %}" class="icon-btn" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </a>
+              <button class="icon-btn del" title="Delete"
+                onclick="confirmDelete('{% url 'custom_admin:news_delete' article.pk %}', '{{ article.title|escapejs }}')">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% if page_obj.has_other_pages %}
+    <div style="padding:16px 20px;border-top:1px solid var(--border);">
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+          <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}">
+            <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+          </a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+            <span class="current">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ num }}">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}">
+            <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+      <i class="fa-solid fa-newspaper"></i>
+      <p>{% if search_query %}No news matching "{{ search_query }}"{% else %}No news articles published yet{% endif %}</p>
+      {% if not search_query %}
+      <a href="{% url 'custom_admin:news_create' %}" class="btn btn-primary" style="margin-top:16px;display:inline-flex;">
+        <i class="fa-solid fa-plus"></i> Create First Article
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

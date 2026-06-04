@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — EWU</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0d1b3e 0%, #1a4da8 100%);
+            font-family: 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            padding: 40px 35px;
+            text-align: center;
+        }
+        .login-logo img {
+            max-width: 160px;
+            margin-bottom: 20px;
+        }
+        .login-title {
+            color: #1a3a8f;
+            font-size: 28px;
+            margin: 10px 0 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #1a3a8f;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .alert {
+            padding: 12px;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-logo">
+            <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png" 
+                 alt="EWU Logo" onerror="this.style.display='none'">
+        </div>
+        <h1 class="login-title">Admin Portal</h1>
+        <p class="login-sub">East West University</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" name="username" class="form-input" 
+                       placeholder="Username" required autofocus>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" class="form-input" 
+                       placeholder="Password" required>
+            </div>
+            <button type="submit">Sign In</button>
+        </form>
+
+        <a href="/" style="display:block; margin-top:20px; color:#666; text-decoration:none;">
+            ← Back to Website
+        </a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if edit %}Edit{% else %}Create{% endif %} News</title>
+    <style>
+        .form-container { max-width: 800px; margin: 30px auto; padding: 30px; background: white; border-radius: 12px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
+        button { padding: 14px 30px; background: #1a3a8f; color: white; border: none; border-radius: 8px; }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h1>{% if edit %}Edit News{% else %}Create News{% endif %}</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label>Title</label>
+        <input type="text" name="title" value="{{ news.title|default:'' }}" required>
+        <label>Content</label>
+        <textarea name="content" rows="12" required>{{ news.content|default:'' }}</textarea>
+        <button type="submit">Save News</button>
+    </form>
+</div>
+</body>
+</html>

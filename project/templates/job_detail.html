@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ job.title }} - Jobs at EWU{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>{{ job.title }}</h1>
+    <div class="breadcrumb">
+      <a href="/">Home</a> <span>›</span>
+      <a href="{% url 'jobs' %}">Jobs</a> <span>›</span>
+      <span>{{ job.title }}</span>
+    </div>
+  </div>
+</div>
+
+<section class="jd-section">
+  <div class="jd-container">
+    <div class="jd-grid">
+
+      <!-- LEFT: MAIN CONTENT -->
+      <div class="jd-main">
+
+        <!-- META STRIP -->
+        <div class="jd-meta-strip">
+          <span class="badge badge--dept">{{ job.get_department_display }}</span>
+          <span class="badge badge--{{ job.job_type }}">{{ job.get_job_type_display }}</span>
+          {% if job.deadline %}
+            {% if job.is_expired %}
+            <span class="badge badge--expired">Applications Closed</span>
+            {% else %}
+            <span class="badge badge--deadline">
+              <i class="fa-regular fa-clock"></i> Deadline: {{ job.deadline|date:"d M, Y" }}
+            </span>
+            {% endif %}
+          {% endif %}
+          <span class="jd-posted">Posted: {{ job.posted_at|date:"d M, Y" }}</span>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="jd-block">
+          <h2 class="jd-block-title">Job Description</h2>
+          <div class="jd-text">{{ job.description|linebreaks }}</div>
+        </div>
+
+        <!-- REQUIREMENTS -->
+        {% if job.requirements_list %}
+        <div class="jd-block">
+          <h2 class="jd-block-title">Requirements</h2>
+          <ul class="jd-req-list">
+            {% for req in job.requirements_list %}
+            <li><i class="fa-solid fa-circle-check"></i> {{ req }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+
+        <!-- HOW TO APPLY -->
+        {% if job.how_to_apply %}
+        <div class="jd-block jd-block--apply">
+          <h2 class="jd-block-title">How to Apply</h2>
+          <div class="jd-text">{{ job.how_to_apply|linebreaks }}</div>
+        </div>
+        {% else %}
+        <div class="jd-block jd-block--apply">
+          <h2 class="jd-block-title">How to Apply</h2>
+          <p class="jd-text">
+            Send your CV and cover letter to
+            <a href="mailto:hr@ewubd.edu" class="jd-link">hr@ewubd.edu</a>
+            with the subject line <strong>"Application: {{ job.title }}"</strong>.
+          </p>
+        </div>
+        {% endif %}
+
+        <!-- APPLY CTA -->
+        {% if not job.is_expired %}
+        <div class="jd-cta">
+          <a href="mailto:hr@ewubd.edu?subject=Application: {{ job.title|urlencode }}"
+             class="btn-apply-now">
+            <i class="fa-solid fa-paper-plane"></i> Apply Now
+          </a>
+          <a href="{% url 'jobs' %}" class="btn-back-jobs">
+            <i class="fa-solid fa-arrow-left"></i> All Jobs
+          </a>
+        </div>
+        {% else %}
+        <div class="jd-expired-notice">
+          <i class="fa-solid fa-circle-xmark"></i>
+          This position is no longer accepting applications.
+          <a href="{% url 'jobs' %}">View open positions →</a>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- RIGHT: SIDEBAR -->
+      <div class="jd-sidebar">
+
+        <!-- QUICK INFO CARD -->
+        <div class="jd-info-card">
+          <h3>Position Summary</h3>
+          <ul class="jd-info-list">
+            <li>
+              <i class="fa-solid fa-building-columns"></i>
+              <div>
+                <span class="info-label">Department</span>
+                <span class="info-value">{{ job.get_department_display }}</span>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-briefcase"></i>
+              <div>
+                <span class="info-label">Job Type</span>
+                <span class="info-value">{{ job.get_job_type_display }}</span>
+              </div>
+            </li>
+            {% if job.deadline %}
+            <li>
+              <i class="fa-regular fa-calendar-xmark"></i>
+              <div>
+                <span class="info-label">Application Deadline</span>
+                <span class="info-value {% if job.is_expired %}expired-text{% endif %}">
+                  {{ job.deadline|date:"d F, Y" }}
+                  {% if job.is_expired %} (Closed){% endif %}
+                </span>
+              </div>
+            </li>
+            {% endif %}
+            <li>
+              <i class="fa-regular fa-calendar-plus"></i>
+              <div>
+                <span class="info-label">Posted On</span>
+                <span class="info-value">{{ job.posted_at|date:"d F, Y" }}</span>
+              </div>
+            </li>
+            <li>
+              <i class="fa-solid fa-location-dot"></i>
+              <div>
+                <span class="info-label">Location</span>
+                <span class="info-value">Dhaka, Bangladesh</span>
+              </div>
+            </li>
+          </ul>
+
+          {% if not job.is_expired %}
+          <a href="mailto:hr@ewubd.edu?subject=Application: {{ job.title|urlencode }}"
+             class="btn-apply-sidebar">
+            Apply for this Position
+          </a>
+          {% endif %}
+        </div>
+
+        <!-- CONTACT CARD -->
+        <div class="jd-contact-card">
+          <h3>Contact HR</h3>
+          <p><i class="fa-regular fa-envelope"></i> hr@ewubd.edu</p>
+          <p><i class="fa-solid fa-phone"></i> 09666775577, Ext. 234</p>
+          <p class="jd-contact-hours">Office Hours: Sun – Thu, 9 AM – 5 PM</p>
+        </div>
+
+        <!-- RELATED JOBS -->
+        {% if related %}
+        <div class="jd-related">
+          <h3>More in {{ job.get_department_display }}</h3>
+          {% for rj in related %}
+          <a href="{% url 'job_detail' rj.pk %}" class="related-job-item">
+            <span class="related-job-title">{{ rj.title }}</span>
+            <span class="related-job-type">{{ rj.get_job_type_display }}</span>
+          </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.page-hero { background: #0d3b6e; color: #fff; padding: 36px 0 30px; }
+.page-hero-inner { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+.page-hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+.breadcrumb { font-size: 13px; color: rgba(255,255,255,0.7); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.breadcrumb a { color: rgba(255,255,255,0.85); }
+.breadcrumb a:hover { color: #f0c040; }
+
+.jd-section { padding: 40px 0 70px; background: #f4f6f9; }
+.jd-container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+
+/* GRID */
+.jd-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* META STRIP */
+.jd-meta-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 28px;
+}
+.jd-posted { font-size: 12px; color: #999; margin-left: auto; }
+
+/* BADGES (reuse from jobs.html) */
+.badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+.badge--dept        { background: #e8eef8; color: #0d3b6e; }
+.badge--full_time   { background: #e8f5e9; color: #1b5e20; }
+.badge--part_time   { background: #fff8e1; color: #795400; }
+.badge--contractual { background: #fce4ec; color: #880e4f; }
+.badge--adjunct     { background: #ede7f6; color: #4a148c; }
+.badge--deadline    { background: #fff3e0; color: #e65100; }
+.badge--deadline i  { margin-right: 3px; }
+.badge--expired     { background: #f5f5f5; color: #9e9e9e; }
+
+/* CONTENT BLOCKS */
+.jd-main { display: flex; flex-direction: column; gap: 0; }
+
+.jd-block {
+  background: #fff;
+  border: 1px solid #e4e8ed;
+  border-radius: 8px;
+  padding: 26px 28px;
+  margin-bottom: 20px;
+}
+.jd-block--apply { border-left: 4px solid #0d3b6e; }
+
+.jd-block-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0d3b6e;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.jd-text { font-size: 14px; color: #444; line-height: 1.8; }
+.jd-text p { margin-bottom: 10px; }
+.jd-link { color: #0d3b6e; font-weight: 600; }
+
+/* REQUIREMENTS LIST */
+.jd-req-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.jd-req-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+.jd-req-list li i { color: #28a745; font-size: 15px; margin-top: 2px; flex-shrink: 0; }
+
+/* CTA */
+.jd-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.btn-apply-now {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #0d3b6e; color: #fff;
+  padding: 12px 28px; border-radius: 4px;
+  font-size: 15px; font-weight: 700; text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-apply-now:hover { background: #1a5fa8; }
+.btn-back-jobs {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 2px solid #0d3b6e; color: #0d3b6e;
+  padding: 12px 24px; border-radius: 4px;
+  font-size: 14px; font-weight: 700; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-back-jobs:hover { background: #0d3b6e; color: #fff; }
+
+.jd-expired-notice {
+  background: #f5f5f5; border: 1px solid #e0e0e0;
+  border-radius: 6px; padding: 16px 20px;
+  font-size: 14px; color: #777;
+  display: flex; align-items: center; gap: 10px;
+}
+.jd-expired-notice i { color: #bbb; font-size: 18px; }
+.jd-expired-notice a { color: #0d3b6e; font-weight: 600; margin-left: 4px; }
+
+/* SIDEBAR */
+.jd-sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+.jd-info-card, .jd-contact-card, .jd-related {
+  background: #fff;
+  border: 1px solid #e4e8ed;
+  border-radius: 8px;
+  padding: 22px 22px;
+}
+.jd-info-card h3, .jd-contact-card h3, .jd-related h3 {
+  font-size: 15px; font-weight: 700; color: #0d3b6e;
+  margin-bottom: 16px; padding-bottom: 10px;
+  border-bottom: 2px solid #0d3b6e;
+}
+
+.jd-info-list { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+.jd-info-list li { display: flex; align-items: flex-start; gap: 12px; }
+.jd-info-list li > i { color: #0d3b6e; font-size: 16px; margin-top: 2px; flex-shrink: 0; }
+.info-label { display: block; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.4px; }
+.info-value { display: block; font-size: 13px; font-weight: 600; color: #222; }
+.expired-text { color: #e53935 !important; }
+
+.btn-apply-sidebar {
+  display: block; text-align: center;
+  background: #0d3b6e; color: #fff;
+  padding: 11px; border-radius: 4px;
+  font-size: 14px; font-weight: 700; text-decoration: none;
+  margin-top: 18px; transition: background 0.2s;
+}
+.btn-apply-sidebar:hover { background: #1a5fa8; }
+
+.jd-contact-card p { font-size: 13px; color: #444; margin-bottom: 8px; }
+.jd-contact-card p i { color: #0d3b6e; margin-right: 7px; width: 14px; }
+.jd-contact-hours { font-size: 12px !important; color: #999 !important; margin-top: 4px; }
+
+.related-job-item {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 10px 0; border-bottom: 1px solid #f0f0f0;
+  text-decoration: none; transition: color 0.2s;
+}
+.related-job-item:last-child { border-bottom: none; }
+.related-job-title { font-size: 13px; font-weight: 600; color: #0d3b6e; }
+.related-job-item:hover .related-job-title { color: #1a5fa8; }
+.related-job-type { font-size: 11px; color: #999; }
+
+/* RESPONSIVE */
+@media (max-width: 860px) {
+  .jd-grid { grid-template-columns: 1fr; }
+  .jd-sidebar { order: -1; }
+  .jd-info-card { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .jd-info-card h3 { grid-column: span 2; }
+  .btn-apply-sidebar { grid-column: span 2; }
+}
+@media (max-width: 520px) {
+  .jd-info-card { display: block; }
+  .jd-block { padding: 18px 16px; }
+}
+</style>
+
+{% endblock %}

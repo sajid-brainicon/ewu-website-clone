@@ -33,8 +33,9 @@
       <a href="#">Policy</a>
       <a href="#">Alumni</a>
       <a href="#">Student</a>
-      <a href="#" aria-label="User Account"><i class="fa-regular fa-user"></i></a>
-    </div>
+<a href="/admin/login/" aria-label="Admin Login" title="Admin Portal">
+    <i class="fa-regular fa-user"></i>
+</a>    </div>
   </div>
 </div>
 
@@ -550,6 +551,90 @@
     </div>
   </div>
 </section>
+<!-- ═══════════════════════════════════════════
+     EWU ACHIEVEMENTS — paste into home.html
+     after the news section
+════════════════════════════════════════════ -->
+<section class="ach-section">
+  <div class="ach-inner">
+
+    <div class="section-header">
+      <div class="section-title">EWU ACHIEVEMENTS</div>
+      <div class="nav-arrows">
+        <button onclick="achMove(-1)" aria-label="Previous">&#8592;</button>
+        <button onclick="achMove(1)"  aria-label="Next">&#8594;</button>
+      </div>
+    </div>
+
+    <div class="ach-track-wrap">
+      <div class="ach-track" id="achTrack">
+
+        {% if achievements %}
+          {% for ach in achievements %}
+          <div class="ach-card">
+            <h4 class="ach-title">{{ ach.title }}</h4>
+            <div class="ach-date">Achieved on: &nbsp;{{ ach.achieved_on|date:"d M, Y" }}</div>
+            <div class="ach-img-wrap">
+              <img src="{{ ach.image.url }}"
+                   alt="{{ ach.title }}"
+                   class="ach-img"
+                   onerror="this.parentElement.innerHTML='<div class=\'ach-img-placeholder\'><i class=\'fa-solid fa-trophy\'></i></div>'">
+            </div>
+            <a href="#" class="ach-view-link">
+              <i class="fa-solid fa-circle-arrow-right"></i> View Details
+            </a>
+          </div>
+          {% endfor %}
+
+        {% else %}
+          {# ── Static fallback until admin adds real data ── #}
+          <div class="ach-card">
+            <h4 class="ach-title">Saifa Haque Awarded Fellowship to Advance HE</h4>
+            <div class="ach-date">Achieved on: &nbsp;12 May, 2026</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-award"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+          <div class="ach-card">
+            <h4 class="ach-title">EWU Students Clinch Gold at 8th World Innovation Competition; Set for International Stage in Malaysia</h4>
+            <div class="ach-date">Achieved on: &nbsp;11 May, 2026</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-medal"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+          <div class="ach-card">
+            <h4 class="ach-title">Team MATIPLUS Crowned Champion at Hult Prize Qualifier Round Hosted by AUST</h4>
+            <div class="ach-date">Achieved on: &nbsp;02 Mar, 2026</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-trophy"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+          <div class="ach-card">
+            <h4 class="ach-title">EWU Debate Club Wins National Inter-University Championship 2026</h4>
+            <div class="ach-date">Achieved on: &nbsp;18 Jan, 2026</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-star"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+          <div class="ach-card">
+            <h4 class="ach-title">EWU Robotics Team Places 2nd at Asia-Pacific Robotics Olympiad</h4>
+            <div class="ach-date">Achieved on: &nbsp;05 Dec, 2025</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-robot"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+          <div class="ach-card">
+            <h4 class="ach-title">EWU CSE Students Win 1st Place at National Programming Contest</h4>
+            <div class="ach-date">Achieved on: &nbsp;20 Nov, 2025</div>
+            <div class="ach-img-wrap"><div class="ach-img-placeholder"><i class="fa-solid fa-code"></i></div></div>
+            <a href="#" class="ach-view-link"><i class="fa-solid fa-circle-arrow-right"></i> View Details</a>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="ach-footer">
+      <a href="#" class="ach-view-all">View All</a>
+    </div>
+
+  </div>
+</section>
 
 <!-- PARTNERS -->
 <section class="partners-section">
@@ -637,7 +722,7 @@
     <div class="footer-col footer-col--quicklinks">
       <h4>Quick Links</h4>
       <a href="/admissions/" class="ql-btn">Apply Online</a>
-      <a href="#" class="ql-btn">Jobs at EWU</a>
+      <a href="/jobs/" class="ql-btn">Jobs at EWU</a>
       <a href="#" class="ql-btn">Degree Verification</a>
       <a href="/contact/" class="ql-btn">Contact Us</a>
     </div>

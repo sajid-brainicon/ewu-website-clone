@@ -1,0 +1,213 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — EWU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dash-body">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png"
+         alt="EWU" onerror="this.style.display='none'">
+    <span>EWU Admin</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% if active == 'dashboard' %}active{% endif %}">
+      <i class="fa-solid fa-gauge"></i> Dashboard
+    </a>
+
+    <div class="nav-label">Content</div>
+    <a href="{% url 'admin_notice_list' %}" class="sidebar-link {% if active == 'notices' %}active{% endif %}">
+      <i class="fa-solid fa-bullhorn"></i> Notices
+      {% if notice_count %}<span class="badge">{{ notice_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'admin_news_list' %}" class="sidebar-link {% if active == 'news' %}active{% endif %}">
+      <i class="fa-regular fa-newspaper"></i> News
+      {% if news_count %}<span class="badge">{{ news_count }}</span>{% endif %}
+    </a>
+    <a href="{% url 'admin_event_list' %}" class="sidebar-link {% if active == 'events' %}active{% endif %}">
+      <i class="fa-regular fa-calendar"></i> Events
+    </a>
+    <a href="{% url 'admin_slider_list' %}" class="sidebar-link {% if active == 'sliders' %}active{% endif %}">
+      <i class="fa-solid fa-images"></i> Sliders
+    </a>
+    <a href="{% url 'admin_date_list' %}" class="sidebar-link {% if active == 'dates' %}active{% endif %}">
+      <i class="fa-solid fa-calendar-days"></i> Important Dates
+    </a>
+
+    <div class="nav-label">System</div>
+    <a href="/admin/" class="sidebar-link">
+      <i class="fa-solid fa-screwdriver-wrench"></i> Django Admin
+    </a>
+    <a href="{% url 'admin_logout' %}" class="sidebar-link sidebar-link--danger">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </a>
+  </nav>
+</aside>
+
+<!-- MAIN -->
+<div class="dash-main">
+  <!-- TOP BAR -->
+  <header class="dash-topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-user">
+      <i class="fa-regular fa-user"></i>
+      <span>{{ request.user.username }}</span>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main class="dash-content">
+
+    {% if messages %}
+    <div class="alert-wrap">
+      {% for message in messages %}
+      <div class="alert alert--{{ message.tags }}">
+        <i class="fa-solid fa-circle-check"></i> {{ message }}
+        <button onclick="this.parentElement.remove()">×</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="page-header">
+      <h1 class="page-title">Welcome back, {{ request.user.first_name|default:request.user.username }}!</h1>
+      <p class="page-sub">Here's what's happening on the EWU website today.</p>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stat-grid">
+      <div class="stat-card stat-card--blue">
+        <div class="stat-icon"><i class="fa-solid fa-bullhorn"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ notice_count }}</div>
+          <div class="stat-label">Total Notices</div>
+        </div>
+        <a href="{% url 'admin_notice_list' %}" class="stat-link">View all →</a>
+      </div>
+      <div class="stat-card stat-card--green">
+        <div class="stat-icon"><i class="fa-regular fa-newspaper"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ news_count }}</div>
+          <div class="stat-label">Total News</div>
+        </div>
+        <a href="{% url 'admin_news_list' %}" class="stat-link">View all →</a>
+      </div>
+      <div class="stat-card stat-card--amber">
+        <div class="stat-icon"><i class="fa-regular fa-calendar"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ event_count }}</div>
+          <div class="stat-label">Total Events</div>
+        </div>
+        <a href="{% url 'admin_event_list' %}" class="stat-link">View all →</a>
+      </div>
+      <div class="stat-card stat-card--teal">
+        <div class="stat-icon"><i class="fa-solid fa-images"></i></div>
+        <div class="stat-info">
+          <div class="stat-num">{{ slider_count }}</div>
+          <div class="stat-label">Slider Images</div>
+        </div>
+        <a href="{% url 'admin_slider_list' %}" class="stat-link">View all →</a>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2>Quick Actions</h2>
+      </div>
+      <div class="quick-actions">
+        <a href="{% url 'admin_notice_create' %}" class="action-btn action-btn--blue">
+          <i class="fa-solid fa-plus"></i> New Notice
+        </a>
+        <a href="{% url 'admin_news_create' %}" class="action-btn action-btn--green">
+          <i class="fa-solid fa-plus"></i> New News
+        </a>
+        <a href="{% url 'admin_event_create' %}" class="action-btn action-btn--amber">
+          <i class="fa-solid fa-plus"></i> New Event
+        </a>
+        <a href="{% url 'admin_slider_create' %}" class="action-btn action-btn--teal">
+          <i class="fa-solid fa-plus"></i> New Slider
+        </a>
+        <a href="{% url 'admin_date_create' %}" class="action-btn action-btn--purple">
+          <i class="fa-solid fa-plus"></i> New Important Date
+        </a>
+      </div>
+    </div>
+
+    <!-- RECENT NOTICES + NEWS -->
+    <div class="two-col">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2>Recent Notices</h2>
+          <a href="{% url 'admin_notice_list' %}" class="see-all">See all</a>
+        </div>
+        <table class="dash-table">
+          <thead>
+            <tr><th>Title</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for notice in recent_notices %}
+            <tr>
+              <td>{{ notice.title|truncatechars:40 }}</td>
+              <td>{{ notice.created_at|date:"d M Y" }}</td>
+              <td class="action-col">
+                <a href="{% url 'admin_notice_edit' notice.pk %}" class="tbl-btn tbl-btn--edit"><i class="fa-solid fa-pen"></i></a>
+                <a href="{% url 'admin_notice_delete' notice.pk %}" class="tbl-btn tbl-btn--del"><i class="fa-solid fa-trash"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="empty-row">No notices yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2>Recent News</h2>
+          <a href="{% url 'admin_news_list' %}" class="see-all">See all</a>
+        </div>
+        <table class="dash-table">
+          <thead>
+            <tr><th>Title</th><th>Date</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            {% for item in recent_news %}
+            <tr>
+              <td>{{ item.title|truncatechars:40 }}</td>
+              <td>{{ item.created_at|date:"d M Y" }}</td>
+              <td class="action-col">
+                <a href="{% url 'admin_news_edit' item.pk %}" class="tbl-btn tbl-btn--edit"><i class="fa-solid fa-pen"></i></a>
+                <a href="{% url 'admin_news_delete' item.pk %}" class="tbl-btn tbl-btn--del"><i class="fa-solid fa-trash"></i></a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="empty-row">No news yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+</script>
+</body>
+</html>

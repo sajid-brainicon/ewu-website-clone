@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notices — EWU Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dash-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png" alt="EWU" onerror="this.style.display='none'">
+    <span>EWU Admin</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <div class="nav-label">Content</div>
+    <a href="{% url 'admin_notice_list' %}" class="sidebar-link active"><i class="fa-solid fa-bullhorn"></i> Notices</a>
+    <a href="{% url 'admin_news_list' %}" class="sidebar-link"><i class="fa-regular fa-newspaper"></i> News</a>
+    <a href="{% url 'admin_event_list' %}" class="sidebar-link"><i class="fa-regular fa-calendar"></i> Events</a>
+    <a href="{% url 'admin_slider_list' %}" class="sidebar-link"><i class="fa-solid fa-images"></i> Sliders</a>
+    <a href="{% url 'admin_date_list' %}" class="sidebar-link"><i class="fa-solid fa-calendar-days"></i> Important Dates</a>
+    <div class="nav-label">System</div>
+    <a href="/admin/" class="sidebar-link"><i class="fa-solid fa-screwdriver-wrench"></i> Django Admin</a>
+    <a href="{% url 'admin_logout' %}" class="sidebar-link sidebar-link--danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+  </nav>
+</aside>
+
+<div class="dash-main">
+  <header class="dash-topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title">Notices</div>
+    <div class="topbar-user"><i class="fa-regular fa-user"></i><span>{{ request.user.username }}</span></div>
+  </header>
+
+  <main class="dash-content">
+    {% if messages %}
+    <div class="alert-wrap">
+      {% for message in messages %}
+      <div class="alert alert--{{ message.tags }}"><i class="fa-solid fa-circle-check"></i> {{ message }}<button onclick="this.parentElement.remove()">×</button></div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Notices</h1>
+        <p class="page-sub">{{ notices.count }} total notices</p>
+      </div>
+      <a href="{% url 'admin_notice_create' %}" class="action-btn action-btn--blue">
+        <i class="fa-solid fa-plus"></i> New Notice
+      </a>
+    </div>
+
+    <div class="section-card">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for notice in notices %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td><strong>{{ notice.title }}</strong></td>
+            <td>{{ notice.description|truncatechars:60 }}</td>
+            <td>{{ notice.created_at|date:"d M Y" }}</td>
+            <td class="action-col">
+              <a href="{% url 'admin_notice_edit' notice.pk %}" class="tbl-btn tbl-btn--edit" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </a>
+              <a href="{% url 'admin_notice_delete' notice.pk %}" class="tbl-btn tbl-btn--del" title="Delete"
+                 onclick="return confirm('Delete this notice?')">
+                <i class="fa-solid fa-trash"></i>
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" class="empty-row">No notices found. <a href="{% url 'admin_notice_create' %}">Create one →</a></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script>function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}</script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background: #1a3a8f; color: white; }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <h1>News Management</h1>
+    <a href="/admin/news/create/" class="btn btn-add">+ Add New News</a>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for news in news_list %}
+            <tr>
+                <td>{{ news.title }}</td>
+                <td>{{ news.created_at|date:"d M, Y" }}</td>
+                <td>
+                    <a href="/admin/news/{{ news.pk }}/edit/" class="btn btn-edit">Edit</a>
+                    <a href="/admin/news/{{ news.pk }}/delete/" class="btn btn-delete" onclick="return confirm('Delete?')">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

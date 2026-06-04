@@ -1,30 +1,358 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Gallery - East West University{% endblock %}
+{% block title %}Photo Gallery - East West University{% endblock %}
+
 {% block content %}
-<section class="py-5">
-    <div class="container">
-        <h1 class="fw-bold mb-4 text-center">Photo Gallery</h1>
-        <div class="row g-3" id="gallery">
-            {% for img in gallery_images %}
-            <div class="col-md-4 col-sm-6">
-                <a href="#" class="gallery-item" data-bs-toggle="modal" data-bs-target="#lightboxModal" data-img="{% static img %}">
-                    <img src="{% static img %}" class="img-fluid rounded shadow-sm" alt="Gallery">
-                </a>
-            </div>
-            {% endfor %}
-        </div>
+
+<!-- PAGE HEADER -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>Photo Gallery</h1>
+    <div class="breadcrumb">
+      <a href="/">Home</a> <span>›</span> <span>Gallery</span>
     </div>
+  </div>
+</div>
+
+<section class="gallery-section">
+  <div class="gallery-container">
+
+    <!-- CATEGORY FILTER TABS -->
+    <div class="gallery-tabs">
+      <a href="{% url 'gallery' %}"
+         class="gallery-tab {% if not selected_cat %}active{% endif %}">
+        All Photos
+      </a>
+      {% for cat in categories %}
+      <a href="{% url 'gallery' %}?cat={{ cat.id }}"
+         class="gallery-tab {% if selected_cat == cat.id|stringformat:'s' %}active{% endif %}">
+        {{ cat.name }}
+        <span class="tab-count">{{ cat.photos.count }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- PHOTO GRID -->
+    {% if photos %}
+    <div class="gallery-grid" id="galleryGrid">
+      {% for photo in photos %}
+      <div class="gallery-item" onclick="openLightbox({{ forloop.counter0 }})">
+        <div class="gallery-img-wrap">
+          <img src="{{ photo.image.url }}"
+               alt="{{ photo.title }}"
+               class="gallery-img"
+               loading="lazy">
+          <div class="gallery-overlay">
+            <i class="fa-solid fa-magnifying-glass-plus"></i>
+          </div>
+        </div>
+        {% if photo.title or photo.caption %}
+        <div class="gallery-caption">
+          {% if photo.title %}<strong>{{ photo.title }}</strong>{% endif %}
+          {% if photo.caption %}<span>{{ photo.caption }}</span>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="gallery-empty">
+      <i class="fa-regular fa-images"></i>
+      <p>No photos available in this category yet.</p>
+      <a href="{% url 'gallery' %}" class="btn-back">View All Photos</a>
+    </div>
+    {% endif %}
+
+  </div>
 </section>
 
-<!-- Lightbox Modal -->
-<div class="modal fade" id="lightboxModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content bg-transparent border-0">
-            <div class="modal-body text-center">
-                <img src="" id="lightboxImage" class="img-fluid rounded">
-            </div>
-        </div>
-    </div>
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox-overlay" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox()">&times;</button>
+  <button class="lb-prev" onclick="lbMove(-1)">&#8249;</button>
+  <button class="lb-next" onclick="lbMove(1)">&#8250;</button>
+  <div class="lb-inner">
+    <img src="" id="lbImg" alt="">
+    <div class="lb-caption" id="lbCaption"></div>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
 </div>
+
+<!-- ── STYLES ── -->
+<style>
+/* PAGE HERO */
+.page-hero {
+  background: #0d3b6e;
+  color: #fff;
+  padding: 36px 0 30px;
+}
+.page-hero-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.page-hero h1 {
+  font-size: 30px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.breadcrumb {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.breadcrumb a { color: rgba(255,255,255,0.85); }
+.breadcrumb a:hover { color: #f0c040; }
+
+/* SECTION */
+.gallery-section { padding: 40px 0 60px; background: #f8f8f8; }
+.gallery-container { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
+
+/* TABS */
+.gallery-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.gallery-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  color: #444;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.gallery-tab:hover { border-color: #0d3b6e; color: #0d3b6e; }
+.gallery-tab.active {
+  background: #0d3b6e;
+  border-color: #0d3b6e;
+  color: #fff;
+}
+.tab-count {
+  background: rgba(255,255,255,0.25);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+.gallery-tab:not(.active) .tab-count {
+  background: #eee;
+  color: #666;
+}
+
+/* GRID */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.gallery-item {
+  cursor: pointer;
+  background: #fff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+}
+
+.gallery-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 220px;
+}
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+.gallery-item:hover .gallery-img { transform: scale(1.06); }
+
+.gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13,59,110,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.gallery-overlay i { font-size: 28px; color: #fff; }
+.gallery-item:hover .gallery-overlay { opacity: 1; }
+
+.gallery-caption {
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.gallery-caption strong { font-size: 13px; color: #222; }
+.gallery-caption span   { font-size: 12px; color: #777; }
+
+/* EMPTY STATE */
+.gallery-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+.gallery-empty i { font-size: 56px; display: block; margin-bottom: 16px; color: #ccc; }
+.gallery-empty p { font-size: 16px; margin-bottom: 20px; }
+.btn-back {
+  display: inline-block;
+  background: #0d3b6e;
+  color: #fff;
+  padding: 10px 28px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* LIGHTBOX */
+.lightbox-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox-overlay.open { display: flex; }
+
+.lb-inner {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  text-align: center;
+}
+.lb-inner img {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  display: block;
+  border-radius: 3px;
+  margin: 0 auto;
+}
+.lb-caption {
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  margin-top: 12px;
+  min-height: 20px;
+}
+.lb-counter {
+  color: rgba(255,255,255,0.45);
+  font-size: 12px;
+  margin-top: 6px;
+}
+.lb-close {
+  position: fixed;
+  top: 18px; right: 22px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 36px;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 9001;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.lb-close:hover { opacity: 1; }
+.lb-prev, .lb-next {
+  position: fixed;
+  top: 50%; transform: translateY(-50%);
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  font-size: 36px;
+  padding: 12px 18px;
+  cursor: pointer;
+  z-index: 9001;
+  transition: background 0.2s;
+  line-height: 1;
+}
+.lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,0.25); }
+.lb-prev { left: 10px; }
+.lb-next { right: 10px; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 540px) {
+  .gallery-grid { grid-template-columns: 1fr; }
+  .gallery-img-wrap { height: 200px; }
+}
+</style>
+
+<!-- ── LIGHTBOX JS ── -->
+<script>
+// Build image data array from the rendered grid
+const galleryData = [
+  {% for photo in photos %}
+  {
+    src:     "{{ photo.image.url }}",
+    caption: "{{ photo.title }}{% if photo.caption %} — {{ photo.caption }}{% endif %}"
+  }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+];
+
+let lbCurrent = 0;
+
+function openLightbox(index) {
+  lbCurrent = index;
+  showSlide(index);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  // Close only if clicking the dark overlay (not the image/controls)
+  if (e && e.target !== document.getElementById('lightbox')) return;
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function lbMove(dir) {
+  lbCurrent = (lbCurrent + dir + galleryData.length) % galleryData.length;
+  showSlide(lbCurrent);
+}
+
+function showSlide(i) {
+  const item = galleryData[i];
+  document.getElementById('lbImg').src        = item.src;
+  document.getElementById('lbCaption').textContent = item.caption || '';
+  document.getElementById('lbCounter').textContent =
+    (i + 1) + ' / ' + galleryData.length;
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lbMove(-1);
+  if (e.key === 'ArrowRight') lbMove(1);
+  if (e.key === 'Escape') {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+</script>
+
 {% endblock %}

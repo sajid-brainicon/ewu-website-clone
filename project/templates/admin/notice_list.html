@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notices - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #1a3a8f; color: white; }
+        .btn { padding: 8px 14px; border-radius: 6px; text-decoration: none; margin: 0 4px; }
+        .btn-edit { background: #10b981; color: white; }
+        .btn-delete { background: #ef4444; color: white; }
+        .btn-add { background: #1a3a8f; color: white; padding: 12px 20px; }
+    </style>
+</head>
+<body>
+<div class="admin-container">
+    <h1>Notices Management</h1>
+    <a href="/admin/notices/create/" class="btn btn-add"><i class="fa-solid fa-plus"></i> Add New Notice</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notice in notices %}
+            <tr>
+                <td>{{ notice.title }}</td>
+                <td>{{ notice.created_at|date:"d M, Y" }}</td>
+                <td>
+                    <a href="/admin/notices/{{ notice.pk }}/edit/" class="btn btn-edit">Edit</a>
+                    <a href="/admin/notices/{{ notice.pk }}/delete/" class="btn btn-delete" 
+                       onclick="return confirm('Delete this notice?')">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">No notices found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Jobs at EWU - East West University{% endblock %}
+
+{% block content %}
+
+<!-- PAGE HEADER -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <h1>Jobs at EWU</h1>
+    <div class="breadcrumb">
+      <a href="/">Home</a> <span>›</span> <span>Career Opportunities</span>
+    </div>
+  </div>
+</div>
+
+<section class="jobs-section">
+  <div class="jobs-container">
+
+    <!-- FILTER BAR -->
+    <div class="jobs-filter-bar">
+      <span class="filter-label">Filter by Department:</span>
+      <div class="filter-tabs">
+        <a href="{% url 'jobs' %}"
+           class="filter-tab {% if not selected_dept %}active{% endif %}">
+          All Departments
+        </a>
+        {% for value, label in dept_choices %}
+        <a href="{% url 'jobs' %}?dept={{ value }}"
+           class="filter-tab {% if selected_dept == value %}active{% endif %}">
+          {{ label }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- JOB COUNT -->
+    <div class="jobs-meta">
+      <strong>{{ jobs.count }}</strong> position{{ jobs.count|pluralize }} available
+    </div>
+
+    <!-- JOB LIST -->
+    {% if jobs %}
+    <div class="jobs-list">
+      {% for job in jobs %}
+      <div class="job-card">
+        <div class="job-card-left">
+          <div class="job-dept-icon">
+            {% if job.department == 'cse' %}<i class="fa-solid fa-laptop-code"></i>
+            {% elif job.department == 'eee' %}<i class="fa-solid fa-bolt"></i>
+            {% elif job.department == 'bba' %}<i class="fa-solid fa-chart-line"></i>
+            {% elif job.department == 'pharmacy' %}<i class="fa-solid fa-capsules"></i>
+            {% elif job.department == 'economics' %}<i class="fa-solid fa-coins"></i>
+            {% elif job.department == 'english' %}<i class="fa-solid fa-book-open"></i>
+            {% elif job.department == 'law' %}<i class="fa-solid fa-gavel"></i>
+            {% else %}<i class="fa-solid fa-building-columns"></i>{% endif %}
+          </div>
+        </div>
+        <div class="job-card-body">
+          <div class="job-card-top">
+            <h3 class="job-title">{{ job.title }}</h3>
+            <div class="job-badges">
+              <span class="badge badge--dept">{{ job.get_department_display }}</span>
+              <span class="badge badge--type badge--{{ job.job_type }}">
+                {{ job.get_job_type_display }}
+              </span>
+              {% if job.deadline %}
+                {% if job.is_expired %}
+                <span class="badge badge--expired">Expired</span>
+                {% else %}
+                <span class="badge badge--deadline">
+                  <i class="fa-regular fa-clock"></i>
+                  Deadline: {{ job.deadline|date:"d M, Y" }}
+                </span>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+          <p class="job-excerpt">
+            {{ job.description|truncatewords:30 }}
+          </p>
+          <div class="job-card-footer">
+            <span class="job-posted">
+              <i class="fa-regular fa-calendar"></i>
+              Posted: {{ job.posted_at|date:"d M, Y" }}
+            </span>
+            <a href="{% url 'job_detail' job.pk %}" class="btn-apply">
+              View &amp; Apply <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="jobs-empty">
+      <i class="fa-regular fa-folder-open"></i>
+      <h3>No Openings Right Now</h3>
+      <p>There are currently no positions available{% if selected_dept %} in this department{% endif %}.
+         Please check back soon or contact <a href="mailto:hr@ewubd.edu">hr@ewubd.edu</a>.</p>
+      {% if selected_dept %}
+      <a href="{% url 'jobs' %}" class="btn-back">View All Jobs</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<style>
+/* PAGE HERO */
+.page-hero {
+  background: #0d3b6e;
+  color: #fff;
+  padding: 36px 0 30px;
+}
+.page-hero-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.page-hero h1 { font-size: 30px; font-weight: 700; margin-bottom: 8px; }
+.breadcrumb {
+  font-size: 13px; color: rgba(255,255,255,0.7);
+  display: flex; gap: 6px; align-items: center;
+}
+.breadcrumb a { color: rgba(255,255,255,0.85); }
+.breadcrumb a:hover { color: #f0c040; }
+
+/* SECTION */
+.jobs-section { padding: 40px 0 70px; background: #f4f6f9; }
+.jobs-container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+
+/* FILTER BAR */
+.jobs-filter-bar {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+.filter-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.filter-tab {
+  padding: 6px 14px;
+  background: #f0f0f0;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #444;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: 1.5px solid transparent;
+}
+.filter-tab:hover { background: #e0e8f5; color: #0d3b6e; }
+.filter-tab.active {
+  background: #0d3b6e;
+  color: #fff;
+  border-color: #0d3b6e;
+}
+
+/* META */
+.jobs-meta {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 20px;
+}
+.jobs-meta strong { color: #0d3b6e; }
+
+/* JOB CARDS */
+.jobs-list { display: flex; flex-direction: column; gap: 16px; }
+
+.job-card {
+  background: #fff;
+  border: 1px solid #e4e8ed;
+  border-radius: 8px;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  transition: box-shadow 0.25s, transform 0.25s;
+}
+.job-card:hover {
+  box-shadow: 0 6px 24px rgba(13,59,110,0.1);
+  transform: translateY(-2px);
+}
+
+.job-card-left {
+  background: #0d3b6e;
+  width: 68px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.job-dept-icon { font-size: 24px; color: rgba(255,255,255,0.85); }
+
+.job-card-body {
+  flex: 1;
+  padding: 20px 22px;
+  min-width: 0;
+}
+.job-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.job-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0d3b6e;
+  line-height: 1.3;
+}
+.job-badges { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.badge--dept      { background: #e8eef8; color: #0d3b6e; }
+.badge--full_time { background: #e8f5e9; color: #1b5e20; }
+.badge--part_time { background: #fff8e1; color: #795400; }
+.badge--contractual { background: #fce4ec; color: #880e4f; }
+.badge--adjunct   { background: #ede7f6; color: #4a148c; }
+.badge--deadline  { background: #fff3e0; color: #e65100; }
+.badge--deadline i { margin-right: 3px; }
+.badge--expired   { background: #f5f5f5; color: #9e9e9e; }
+
+.job-excerpt {
+  font-size: 13.5px;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.job-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.job-posted {
+  font-size: 12px;
+  color: #999;
+}
+.job-posted i { margin-right: 4px; }
+
+.btn-apply {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #0d3b6e;
+  color: #fff;
+  padding: 9px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, gap 0.2s;
+}
+.btn-apply:hover { background: #1a5fa8; gap: 10px; }
+
+/* EMPTY */
+.jobs-empty {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+.jobs-empty i    { font-size: 56px; display: block; margin-bottom: 16px; color: #ccc; }
+.jobs-empty h3   { font-size: 20px; font-weight: 700; color: #444; margin-bottom: 10px; }
+.jobs-empty p    { font-size: 14px; margin-bottom: 20px; line-height: 1.7; }
+.jobs-empty a[href^="mailto"] { color: #0d3b6e; font-weight: 600; }
+.btn-back {
+  display: inline-block;
+  background: #0d3b6e; color: #fff;
+  padding: 10px 28px; border-radius: 4px;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+}
+
+/* RESPONSIVE */
+@media (max-width: 680px) {
+  .job-card-left { display: none; }
+  .job-card-top  { flex-direction: column; }
+  .job-card-footer { flex-direction: column; align-items: flex-start; }
+}
+</style>
+
+{% endblock %}

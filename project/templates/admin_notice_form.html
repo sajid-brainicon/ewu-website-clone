@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if notice %}Edit{% else %}New{% endif %} Notice — EWU Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dash-body">
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png" alt="EWU" onerror="this.style.display='none'">
+    <span>EWU Admin</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="{% url 'admin_dashboard' %}" class="sidebar-link"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <div class="nav-label">Content</div>
+    <a href="{% url 'admin_notice_list' %}" class="sidebar-link active"><i class="fa-solid fa-bullhorn"></i> Notices</a>
+    <a href="{% url 'admin_news_list' %}" class="sidebar-link"><i class="fa-regular fa-newspaper"></i> News</a>
+    <a href="{% url 'admin_event_list' %}" class="sidebar-link"><i class="fa-regular fa-calendar"></i> Events</a>
+    <a href="{% url 'admin_slider_list' %}" class="sidebar-link"><i class="fa-solid fa-images"></i> Sliders</a>
+    <a href="{% url 'admin_date_list' %}" class="sidebar-link"><i class="fa-solid fa-calendar-days"></i> Important Dates</a>
+    <div class="nav-label">System</div>
+    <a href="/admin/" class="sidebar-link"><i class="fa-solid fa-screwdriver-wrench"></i> Django Admin</a>
+    <a href="{% url 'admin_logout' %}" class="sidebar-link sidebar-link--danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+  </nav>
+</aside>
+
+<div class="dash-main">
+  <header class="dash-topbar">
+    <button class="sidebar-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title">{% if notice %}Edit Notice{% else %}New Notice{% endif %}</div>
+    <div class="topbar-user"><i class="fa-regular fa-user"></i><span>{{ request.user.username }}</span></div>
+  </header>
+
+  <main class="dash-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">{% if notice %}Edit Notice{% else %}Create Notice{% endif %}</h1>
+        <p class="page-sub"><a href="{% url 'admin_notice_list' %}">← Back to Notices</a></p>
+      </div>
+    </div>
+
+    <div class="section-card form-card">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label">Title <span class="required">*</span></label>
+          <input type="text" name="title" class="form-input"
+                 value="{{ notice.title|default:'' }}" required
+                 placeholder="Enter notice title">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description <span class="required">*</span></label>
+          <textarea name="description" class="form-input form-textarea" required
+                    placeholder="Enter notice description">{{ notice.description|default:'' }}</textarea>
+        </div>
+
+        <div class="form-actions">
+          <a href="{% url 'admin_notice_list' %}" class="btn-cancel">Cancel</a>
+          <button type="submit" class="btn-save">
+            <i class="fa-solid fa-floppy-disk"></i>
+            {% if notice %}Update Notice{% else %}Create Notice{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+
+<script>function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+{% extends "admin_base.html" %}
+{% block title %}{{ action }} Article{% endblock %}
+{% block page_title %}{{ action }} News Article{% endblock %}
+
+{% block topbar_actions %}
+<a href="{% url 'custom_admin:news_list' %}" class="btn btn-ghost">
+  <i class="fa-solid fa-arrow-left"></i> Back to News
+</a>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:720px;">
+  <div class="card">
+    <div class="card-header">
+      <i class="fa-solid fa-newspaper" style="color:#22c55e;font-size:14px;"></i>
+      <h2>{{ action }} News Article</h2>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="form-label" for="id_title">Title <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="id_title" name="title" class="form-control"
+                 placeholder="Enter article title…"
+                 value="{{ object.title|default:'' }}"
+                 autofocus required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_content">Content</label>
+          <textarea id="id_content" name="content" class="form-control"
+                    placeholder="Article body text…">{{ object.content|default:'' }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Cover Image</label>
+
+          {% if object.image %}
+          <div style="margin-bottom:12px;display:flex;align-items:center;gap:12px;">
+            <img src="{{ object.image.url }}" style="height:72px;width:120px;object-fit:cover;border-radius:7px;border:1px solid var(--border);">
+            <div>
+              <div style="font-size:12.5px;color:var(--muted);">Current image</div>
+              <div style="font-size:12px;color:var(--muted);margin-top:2px;">Upload a new image to replace it</div>
+            </div>
+          </div>
+          {% endif %}
+
+          <label class="file-drop" for="id_image" style="
+            display:block;
+            border:2px dashed var(--border);
+            border-radius:8px;
+            padding:24px;
+            text-align:center;
+            cursor:pointer;
+            transition:border-color .15s,background .15s;
+            color:var(--muted);
+            font-size:13.5px;"
+            id="fileDrop">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:24px;display:block;margin-bottom:8px;opacity:.5;"></i>
+            <span id="fileLabel">Click to upload image or drag & drop</span><br>
+            <small style="font-size:11.5px;opacity:.6;margin-top:4px;display:block;">PNG, JPG, WEBP — max 5MB</small>
+            <input type="file" id="id_image" name="image" accept="image/*"
+                   style="display:none;" onchange="updateFileLabel(this)">
+          </label>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px solid var(--border);margin-top:4px;">
+          <a href="{% url 'custom_admin:news_list' %}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa-solid fa-{% if action == 'Edit' %}floppy-disk{% else %}paper-plane{% endif %}"></i>
+            {% if action == 'Edit' %}Save Changes{% else %}Publish Article{% endif %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if action == 'Edit' and object %}
+  <div style="margin-top:12px;display:flex;justify-content:flex-end;">
+    <button class="btn btn-danger"
+      onclick="confirmDelete('{% url 'custom_admin:news_delete' object.pk %}', '{{ object.title|escapejs }}')">
+      <i class="fa-solid fa-trash"></i> Delete this Article
+    </button>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function updateFileLabel(input) {
+    const label = document.getElementById('fileLabel');
+    if (input.files && input.files[0]) {
+      label.textContent = input.files[0].name;
+      document.getElementById('fileDrop').style.borderColor = 'var(--accent)';
+      document.getElementById('fileDrop').style.background = 'rgba(79,142,247,.05)';
+    }
+  }
+
+  const drop = document.getElementById('fileDrop');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.style.borderColor = 'var(--accent)'; });
+  drop.addEventListener('dragleave', () => { drop.style.borderColor = 'var(--border)'; });
+  drop.addEventListener('drop', e => {
+    e.preventDefault();
+    const fileInput = document.getElementById('id_image');
+    fileInput.files = e.dataTransfer.files;
+    updateFileLabel(fileInput);
+  });
+</script>
+{% endblock %}

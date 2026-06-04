@@ -363,6 +363,82 @@ function getCookie(name) {
   return value;
 }
 
+/* ══════════════════════════════════════════
+   EWU Achievements Carousel — fixed
+   ══════════════════════════════════════════ */
+
+const AchCarousel = (() => {
+  let index   = 0;
+  let cards   = [];
+  let visible = 3;
+
+  function getVisible() {
+    if (window.innerWidth <= 600) return 1;
+    if (window.innerWidth <= 991) return 2;
+    return 3;
+  }
+
+  function setWidths() {
+    const track = document.getElementById('achTrack');
+    if (!track || !cards.length) return;
+
+    visible = getVisible();
+    const wrapperWidth = track.parentElement.offsetWidth;
+    const cw = Math.floor(wrapperWidth / visible);
+
+    cards.forEach(c => {
+      c.style.minWidth = cw + 'px';
+      c.style.maxWidth = cw + 'px';
+    });
+  }
+
+  function slide() {
+    const track = document.getElementById('achTrack');
+    if (!track || !cards.length) return;
+
+    const cw = cards[0].offsetWidth;   // read actual rendered width
+    const max = Math.max(0, cards.length - visible);
+    if (index > max) index = max;
+
+    track.style.transform = `translateX(-${index * cw}px)`;
+  }
+
+  function update() {
+    setWidths();
+    // Let the browser paint the new widths, then slide
+    requestAnimationFrame(slide);
+  }
+
+  function init() {
+    const track = document.getElementById('achTrack');
+    if (!track) return;
+
+    cards = Array.from(track.querySelectorAll('.ach-card'));
+    if (!cards.length) return;
+
+    // Run once immediately, then again after fonts/images settle
+    update();
+    setTimeout(update, 100);
+
+    window.addEventListener('resize', () => {
+      index = 0;   // reset to first card on resize
+      update();
+    });
+  }
+
+  // Global — onclick="achMove(-1)" and onclick="achMove(1)" both work
+  window.achMove = function(dir) {
+    if (!cards.length) return;
+    const max = Math.max(0, cards.length - visible);
+    index = Math.max(0, Math.min(index + dir, max));
+    slide();
+  };
+
+  return { init };
+})();
+
+// ── Make sure this line is inside your DOMContentLoaded block ──
+// AchCarousel.init();
 // ── Exposed as plain window functions so onclick="toggleChat()" works ──
 
 window.toggleChat = function () {
@@ -456,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Ticker.init();
   PartnersTicker.init();
   Chat.init();
+  AchCarousel.init();
   updateAdmissionCountdown();
   setInterval(updateAdmissionCountdown, 60000);
 });
