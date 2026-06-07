@@ -1,0 +1,445 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}EWU Admin{% endblock %} — EWU Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --navy:       #0d3b6e;
+      --navy-dark:  #092d55;
+      --navy-light: #1a5fa8;
+      --amber:      #e8a300;
+      --amber-dark: #c98a00;
+      --red:        #e53935;
+      --green:      #2e7d32;
+      --bg:         #f0f2f5;
+      --white:      #ffffff;
+      --border:     #e2e8f0;
+      --text:       #1a202c;
+      --muted:      #64748b;
+      --sidebar-w:  240px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* ── LAYOUT ── */
+    .admin-wrapper { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sidebar-brand .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--amber);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--navy); font-size: 16px; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .sidebar-brand .brand-name {
+      font-size: 16px; font-weight: 700;
+      color: #fff; line-height: 1.2;
+    }
+    .sidebar-brand .brand-sub {
+      font-size: 10px; color: rgba(255,255,255,.5);
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    .sidebar-section {
+      padding: 12px 12px 4px;
+      font-size: 10px; font-weight: 700;
+      color: rgba(255,255,255,.35);
+      text-transform: uppercase; letter-spacing: 1.5px;
+    }
+
+    .sidebar-nav { flex: 1; padding: 8px 0; }
+
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px;
+      color: rgba(255,255,255,.78);
+      font-size: 13.5px; font-weight: 500;
+      transition: background .15s, color .15s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar-link i { width: 16px; text-align: center; font-size: 13px; }
+    .sidebar-link:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .sidebar-link.active {
+      background: rgba(255,255,255,.12);
+      color: var(--amber);
+      border-left-color: var(--amber);
+    }
+    .sidebar-divider { height: 1px; background: rgba(255,255,255,.1); margin: 8px 16px; }
+
+    .sidebar-logout {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,.1);
+    }
+    .sidebar-logout a {
+      display: flex; align-items: center; gap: 8px;
+      color: #ff6b6b; font-size: 13px; font-weight: 600;
+      transition: color .2s;
+    }
+    .sidebar-logout a:hover { color: #ff4444; }
+
+    /* ── MAIN ── */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top bar */
+    .topbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar-title { font-size: 15px; font-weight: 600; color: var(--navy); }
+    .topbar-user { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); }
+    .topbar-user .avatar {
+      width: 32px; height: 32px;
+      background: var(--navy); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+
+    /* Page area */
+    .page-area { padding: 28px; flex: 1; }
+
+    /* ── PAGE HEAD ── */
+    .page-head { margin-bottom: 24px; }
+    .breadcrumb {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12.5px; color: var(--muted); margin-bottom: 6px;
+    }
+    .breadcrumb a { color: var(--navy-light); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .page-head h1 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .page-head p { font-size: 13.5px; color: var(--muted); }
+
+    /* ── STAT CARDS ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      display: flex; align-items: center; gap: 14px;
+      border-left: 4px solid transparent;
+    }
+    .stat-card--notices  { border-left-color: #e8a300; }
+    .stat-card--news     { border-left-color: #1a5fa8; }
+    .stat-card--sliders  { border-left-color: #7c3aed; }
+    .stat-card--events   { border-left-color: #0d7a5a; }
+    .stat-card--jobs     { border-left-color: #0d6b8a; }
+    .stat-card--ach      { border-left-color: #c0392b; }
+    .stat-card--gallery  { border-left-color: #6d4c41; }
+
+    .stat-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff; flex-shrink: 0;
+    }
+    .stat-icon--notices  { background: #e8a300; }
+    .stat-icon--news     { background: #1a5fa8; }
+    .stat-icon--sliders  { background: #7c3aed; }
+    .stat-icon--events   { background: #0d7a5a; }
+    .stat-icon--jobs     { background: #0d6b8a; }
+    .stat-icon--ach      { background: #c0392b; }
+    .stat-icon--gallery  { background: #6d4c41; }
+
+    .stat-info .num  { font-size: 26px; font-weight: 800; color: var(--navy); line-height: 1; }
+    .stat-info .lbl  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      margin-bottom: 24px;
+    }
+    .quick-actions h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 14px; }
+    .qa-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none;
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy-dark); }
+    .btn-amber { background: var(--amber); color: #fff; }
+    .btn-amber:hover { background: var(--amber-dark); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #c62828; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #1b5e20; }
+    .btn-ghost {
+      background: transparent; color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-warning { background: var(--amber); color: #fff; }
+    .btn-warning:hover { background: var(--amber-dark); }
+
+    /* ── TABLE ── */
+    .tbl-wrap {
+      background: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+    .tbl-toolbar {
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      gap: 12px; flex-wrap: wrap;
+    }
+    .tbl-toolbar h2 { font-size: 15px; font-weight: 700; color: var(--navy); }
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 6px; padding: 6px 12px;
+    }
+    .search-box i { color: var(--muted); font-size: 12px; }
+    .search-box input { border: none; background: transparent; outline: none; font-size: 13px; width: 200px; }
+
+    table.tbl { width: 100%; border-collapse: collapse; }
+    table.tbl thead th {
+      background: var(--navy);
+      color: #fff; padding: 12px 16px;
+      text-align: left; font-size: 12.5px;
+      font-weight: 600; letter-spacing: .3px;
+    }
+    table.tbl thead th:first-child { border-radius: 0; }
+    table.tbl tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); font-size: 13.5px; }
+    table.tbl tbody tr:last-child td { border-bottom: none; }
+    table.tbl tbody tr:hover { background: #f8fafc; }
+
+    .badge {
+      display: inline-block; padding: 3px 10px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+    }
+    .badge-green  { background: #d1fae5; color: #065f46; }
+    .badge-red    { background: #fee2e2; color: #991b1b; }
+    .badge-amber  { background: #fef3c7; color: #92400e; }
+    .badge-blue   { background: #dbeafe; color: #1e40af; }
+    .badge-gray   { background: #f1f5f9; color: #475569; }
+
+    /* ── FORM ── */
+    .form-wrap {
+      background: var(--white);
+      border-radius: 10px;
+      padding: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      max-width: 860px;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .fg { display: flex; flex-direction: column; gap: 6px; }
+    .fg.full { grid-column: span 2; }
+    .fg label { font-size: 13px; font-weight: 600; color: var(--navy); }
+    .fg input,
+    .fg textarea,
+    .fg select {
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color .2s;
+      outline: none;
+      background: var(--white);
+    }
+    .fg input:focus,
+    .fg textarea:focus,
+    .fg select:focus { border-color: var(--navy-light); box-shadow: 0 0 0 3px rgba(26,95,168,.1); }
+    .fg textarea { min-height: 160px; resize: vertical; }
+    .fg .help { font-size: 12px; color: var(--muted); }
+
+    .img-preview-wrap { margin-top: 8px; }
+    .img-preview { width: 200px; height: 130px; object-fit: cover; border-radius: 6px; border: 2px solid var(--border); }
+
+    .form-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+
+    /* ── MESSAGES ── */
+    .msg-list { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .msg {
+      padding: 12px 16px; border-radius: 8px;
+      font-size: 13.5px; display: flex; align-items: center; gap: 10px;
+      border-left: 4px solid;
+    }
+    .msg-success { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+    .msg-error   { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    .msg-info    { background: #eff6ff; border-color: #3b82f6; color: #1e40af; }
+
+    /* ── CONFIRM DELETE ── */
+    .confirm-box {
+      background: var(--white); border-radius: 12px; padding: 40px;
+      max-width: 480px; text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,.12);
+    }
+    .confirm-box .icon { font-size: 48px; color: var(--red); margin-bottom: 16px; }
+    .confirm-box h2 { font-size: 20px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+    .confirm-box p { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+
+    /* ── RECENT TABLE (dashboard) ── */
+    .recent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 24px; }
+    .recent-card { background: var(--white); border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.07); }
+    .recent-card-head {
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .recent-card-head h3 { font-size: 14px; font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+    .recent-card-head a { font-size: 12px; color: var(--navy-light); font-weight: 600; }
+    .recent-card-head a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main-content { margin-left: 0; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .fg.full { grid-column: span 1; }
+      .recent-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="admin-wrapper">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">EWU</div>
+      <div>
+        <div class="brand-name">EWU Admin</div>
+        <div class="brand-sub">Control Panel</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="sidebar-section">Main</div>
+      <a href="{% url 'admin_dashboard' %}" class="sidebar-link {% block nav_dashboard %}{% endblock %}">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard
+      </a>
+
+      <div class="sidebar-section">Content</div>
+      <a href="{% url 'admin_slider_list' %}" class="sidebar-link {% block nav_sliders %}{% endblock %}">
+        <i class="fa-solid fa-images"></i> Sliders
+      </a>
+      <a href="{% url 'admin_notice_list' %}" class="sidebar-link {% block nav_notice %}{% endblock %}">
+        <i class="fa-solid fa-bullhorn"></i> Notices
+      </a>
+      <a href="{% url 'admin_news_list' %}" class="sidebar-link {% block nav_news %}{% endblock %}">
+        <i class="fa-solid fa-newspaper"></i> News
+      </a>
+      <a href="{% url 'admin_event_list' %}" class="sidebar-link {% block nav_events %}{% endblock %}">
+        <i class="fa-solid fa-calendar-days"></i> Events
+      </a>
+      <a href="{% url 'admin_date_list' %}" class="sidebar-link {% block nav_dates %}{% endblock %}">
+        <i class="fa-solid fa-clock"></i> Important Dates
+      </a>
+      <a href="{% url 'admin_achievement_list' %}" class="sidebar-link {% block nav_achievements %}{% endblock %}">
+        <i class="fa-solid fa-trophy"></i> Achievements
+      </a>
+
+      <div class="sidebar-section">Other</div>
+      <a href="{% url 'admin_job_list' %}" class="sidebar-link {% block nav_jobs %}{% endblock %}">
+        <i class="fa-solid fa-briefcase"></i> Jobs
+      </a>
+      <a href="{% url 'admin_gallery_list' %}" class="sidebar-link {% block nav_gallery %}{% endblock %}">
+        <i class="fa-solid fa-photo-film"></i> Gallery
+      </a>
+    </nav>
+
+    <div class="sidebar-logout">
+      <a href="{% url 'admin_logout' %}">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </a>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <span class="topbar-title">{% block topbar_title %}EWU Admin{% endblock %}</span>
+      <div class="topbar-user">
+        <span>{{ request.user.get_full_name|default:request.user.username }}</span>
+        <div class="avatar">{{ request.user.username|first|upper }}</div>
+      </div>
+    </div>
+
+    <div class="page-area">
+
+      <!-- Django messages -->
+      {% if messages %}
+      <div class="msg-list">
+        {% for msg in messages %}
+        <div class="msg msg-{% if msg.tags == 'error' %}error{% elif msg.tags == 'success' %}success{% else %}info{% endif %}">
+          <i class="fa-solid fa-{% if msg.tags == 'error' %}circle-xmark{% elif msg.tags == 'success' %}circle-check{% else %}circle-info{% endif %}"></i>
+          {{ msg }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+</div>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

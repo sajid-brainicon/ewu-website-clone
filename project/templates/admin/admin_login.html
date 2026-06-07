@@ -2,101 +2,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — EWU</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        body {
-            background: linear-gradient(135deg, #0d1b3e 0%, #1a4da8 100%);
-            font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-        }
-        .login-card {
-            background: white;
-            width: 100%;
-            max-width: 420px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            padding: 40px 35px;
-            text-align: center;
-        }
-        .login-logo img {
-            max-width: 160px;
-            margin-bottom: 20px;
-        }
-        .login-title {
-            color: #1a3a8f;
-            font-size: 28px;
-            margin: 10px 0 8px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .form-input {
-            width: 100%;
-            padding: 14px 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 15px;
-            background: #1a3a8f;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 17px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .alert {
-            padding: 12px;
-            background: #fee2e2;
-            color: #dc2626;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — EWU</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#f0f3f8}
+.login-wrap{width:100%;max-width:420px;padding:20px}
+.login-card{background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(13,59,110,.13);overflow:hidden}
+.login-header{background:#0d3b6e;padding:32px 32px 24px;text-align:center;color:#fff}
+.login-logo{width:56px;height:56px;background:#e8a300;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;margin:0 auto 14px}
+.login-header h1{font-size:20px;font-weight:700;margin-bottom:4px}
+.login-header p{font-size:13px;opacity:.75}
+.login-body{padding:28px 32px 32px}
+.messages{margin-bottom:16px}
+.msg{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:7px;font-size:13px;margin-bottom:6px}
+.msg-error{background:#fce4ec;color:#880e4f;border:1px solid #f8bbd0}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:16px}
+.fg label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+.input-wrap{position:relative}
+.input-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:14px}
+.input-wrap input{width:100%;padding:11px 13px 11px 38px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:14px;outline:none;transition:.2s;font-family:inherit}
+.input-wrap input:focus{border-color:#0d3b6e}
+.toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#94a3b8;font-size:14px}
+.btn-login{width:100%;background:#0d3b6e;color:#fff;border:none;padding:12px;border-radius:7px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.btn-login:hover{background:#1a5fa8}
+.login-footer{text-align:center;margin-top:20px;font-size:12px;color:#94a3b8}
+.login-footer a{color:#0d3b6e;font-weight:600}
+</style>
 </head>
 <body>
-    <div class="login-card">
-        <div class="login-logo">
-            <img src="https://www.ewubd.edu/themes/east-west-university/assets/default/images/logo.png" 
-                 alt="EWU Logo" onerror="this.style.display='none'">
-        </div>
-        <h1 class="login-title">Admin Portal</h1>
-        <p class="login-sub">East West University</p>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <input type="text" name="username" class="form-input" 
-                       placeholder="Username" required autofocus>
-            </div>
-            <div class="form-group">
-                <input type="password" name="password" class="form-input" 
-                       placeholder="Password" required>
-            </div>
-            <button type="submit">Sign In</button>
-        </form>
-
-        <a href="/" style="display:block; margin-top:20px; color:#666; text-decoration:none;">
-            ← Back to Website
-        </a>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-logo">EWU</div>
+      <h1>Admin Portal</h1>
+      <p>East West University — Staff Access</p>
     </div>
+    <div class="login-body">
+      {% if messages %}
+      <div class="messages">
+        {% for msg in messages %}
+        <div class="msg msg-{{ msg.tags }}">
+          <i class="fa-solid fa-circle-exclamation"></i> {{ msg }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="fg">
+          <label for="username">Username</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus>
+          </div>
+        </div>
+        <div class="fg">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            <button type="button" class="toggle-pw" onclick="togglePw()" id="eyeBtn">
+              <i class="fa-solid fa-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn-login">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In
+        </button>
+      </form>
+      <div class="login-footer">
+        <a href="/">← Back to EWU Website</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePw() {
+  const input = document.getElementById('password');
+  const icon  = document.getElementById('eyeIcon');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'fa-solid fa-eye-slash';
+  } else {
+    input.type = 'password';
+    icon.className = 'fa-solid fa-eye';
+  }
+}
+</script>
 </body>
 </html>

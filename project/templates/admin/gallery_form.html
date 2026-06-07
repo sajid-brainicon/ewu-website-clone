@@ -1,0 +1,117 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if edit %}Edit{% else %}Upload{% endif %} Photo{% endblock %}
+{% block nav_gallery %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'admin_gallery_list' %}">Gallery</a>
+    <span>›</span>
+    <span>{% if edit %}Edit{% else %}Upload{% endif %}</span>
+  </div>
+  <h1>{% if edit %}Edit Photo{% else %}Upload Photo{% endif %}</h1>
+</div>
+
+<div class="form-wrap">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label>Title <span style="color:var(--red)">*</span></label>
+        <input type="text" name="title" value="{{ obj.title|default:'' }}"
+               placeholder="e.g. 25th Convocation Ceremony" required maxlength="200">
+      </div>
+
+      <div class="fg">
+        <label>Category</label>
+        <select name="category">
+          <option value="">— No Category —</option>
+          {% for cat in categories %}
+          <option value="{{ cat.pk }}" {% if obj.category_id == cat.pk %}selected{% endif %}>
+            {{ cat.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Active</label>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0">
+          <input type="checkbox" name="is_active" id="is_active"
+                 {% if obj.is_active or not edit %}checked{% endif %}
+                 style="width:18px;height:18px;cursor:pointer">
+          <label for="is_active" style="font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;">
+            Show in gallery
+          </label>
+        </div>
+      </div>
+
+      <div class="fg full">
+        <label>Caption</label>
+        <input type="text" name="caption" value="{{ obj.caption|default:'' }}"
+               placeholder="Optional caption for the photo" maxlength="300">
+      </div>
+
+      <div class="fg full">
+        <label>
+          Photo
+          {% if not edit %}<span style="color:var(--red)">*</span>{% else %}(leave blank to keep current){% endif %}
+        </label>
+
+        {% if obj and obj.image %}
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:14px;">
+          <img src="{{ obj.image.url }}" id="imgPreview"
+               style="max-height:200px;border-radius:7px;border:1px solid #e5e7eb;">
+        </div>
+        {% else %}
+        <div id="previewWrap" style="display:none;margin-top:10px">
+          <img src="" id="imgPreview" style="max-height:200px;border-radius:7px;border:1px solid #e5e7eb;">
+        </div>
+        {% endif %}
+
+        <input type="file" name="image" accept="image/*"
+               onchange="previewImg(this)"
+               {% if not edit %}required{% endif %}
+               style="display:block;width:100%;padding:8px;border:1px dashed #d1d5db;border-radius:6px;cursor:pointer;margin-top:8px;">
+        <span class="help">JPG, PNG or WebP.</span>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-{% if edit %}floppy-disk{% else %}upload{% endif %}"></i>
+        {% if edit %}Save Changes{% else %}Upload Photo{% endif %}
+      </button>
+      <a href="{% url 'admin_gallery_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+      {% if edit and obj %}
+      <a href="{% url 'admin_gallery_delete' obj.pk %}"
+         class="btn btn-danger" style="margin-left:auto"
+         onclick="return confirm('Delete this photo permanently?')">
+        <i class="fa-solid fa-trash"></i> Delete
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input) {
+  const wrap = document.getElementById('previewWrap');
+  const img  = document.getElementById('imgPreview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.readAsDataURL(input.files[0]);
+    if (wrap) wrap.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

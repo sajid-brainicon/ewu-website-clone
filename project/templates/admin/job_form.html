@@ -1,0 +1,103 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if edit %}Edit{% else %}New{% endif %} Job{% endblock %}
+{% block nav_jobs %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'admin_job_list' %}">Jobs</a>
+    <span>›</span>
+    <span>{% if edit %}Edit{% else %}New{% endif %}</span>
+  </div>
+  <h1>{% if edit %}Edit Job Posting{% else %}Create Job Posting{% endif %}</h1>
+</div>
+
+<div class="form-wrap" style="max-width:860px">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label>Job Title <span style="color:var(--red)">*</span></label>
+        <input type="text" name="title" value="{{ obj.title|default:'' }}"
+               placeholder="e.g. Lecturer, Department of CSE" required maxlength="300">
+      </div>
+
+      <div class="fg">
+        <label>Department</label>
+        <select name="department">
+          {% for val, label in dept_choices %}
+          <option value="{{ val }}" {% if obj.department == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Job Type</label>
+        <select name="job_type">
+          {% for val, label in type_choices %}
+          <option value="{{ val }}" {% if obj.job_type == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="fg">
+        <label>Application Deadline</label>
+        <input type="date" name="deadline" value="{{ obj.deadline|date:'Y-m-d'|default:'' }}">
+        <span class="help">Leave blank for open deadline.</span>
+      </div>
+
+      <div class="fg">
+        <label>Status</label>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0">
+          <input type="checkbox" name="is_active" id="is_active"
+                 {% if obj.is_active or not edit %}checked{% endif %}
+                 style="width:18px;height:18px;cursor:pointer">
+          <label for="is_active" style="font-size:13px;font-weight:500;text-transform:none;letter-spacing:0;">
+            Show on the website
+          </label>
+        </div>
+      </div>
+
+      <div class="fg full">
+        <label>Description <span style="color:var(--red)">*</span></label>
+        <textarea name="description"
+                  placeholder="Describe the role, responsibilities…"
+                  required>{{ obj.description|default:'' }}</textarea>
+      </div>
+
+      <div class="fg full">
+        <label>Requirements</label>
+        <textarea name="requirements"
+                  placeholder="List qualifications, experience, skills…">{{ obj.requirements|default:'' }}</textarea>
+      </div>
+
+      <div class="fg full">
+        <label>How to Apply</label>
+        <textarea name="how_to_apply"
+                  placeholder="Describe the application process, email to send CV to…">{{ obj.how_to_apply|default:'' }}</textarea>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-{% if edit %}floppy-disk{% else %}paper-plane{% endif %}"></i>
+        {% if edit %}Save Changes{% else %}Post Job{% endif %}
+      </button>
+      <a href="{% url 'admin_job_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+      {% if edit and obj %}
+      <a href="{% url 'admin_job_delete' obj.pk %}"
+         class="btn btn-danger" style="margin-left:auto"
+         onclick="return confirm('Delete this job posting?')">
+        <i class="fa-solid fa-trash"></i> Delete
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

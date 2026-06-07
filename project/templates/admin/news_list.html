@@ -1,43 +1,91 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>News Management</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; }
-        th { background: #1a3a8f; color: white; }
-    </style>
-</head>
-<body>
-<div class="admin-container">
-    <h1>News Management</h1>
-    <a href="/admin/news/create/" class="btn btn-add">+ Add New News</a>
-    
-    <table>
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for news in news_list %}
-            <tr>
-                <td>{{ news.title }}</td>
-                <td>{{ news.created_at|date:"d M, Y" }}</td>
-                <td>
-                    <a href="/admin/news/{{ news.pk }}/edit/" class="btn btn-edit">Edit</a>
-                    <a href="/admin/news/{{ news.pk }}/delete/" class="btn btn-delete" onclick="return confirm('Delete?')">Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% extends 'admin/base_admin.html' %}
+{% block title %}News{% endblock %}
+{% block nav_news %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span><span>News</span>
+  </div>
+  <h1>News Articles</h1>
+  <p>Create, edit and delete news published on the site.</p>
 </div>
-</body>
-</html>
+
+<div class="search-row">
+  <form method="GET" style="display:flex;align-items:center;gap:8px;">
+    <input type="text" name="q" value="{{ q }}"
+           placeholder="Search news…"
+           style="padding:7px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13.5px;width:240px;">
+    <button type="submit" class="btn btn-ghost btn-sm">Search</button>
+    {% if q %}<a href="{% url 'admin_news_list' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </form>
+  <span class="count-badge">{{ news_list|length }} article{{ news_list|length|pluralize }}</span>
+  <a href="{% url 'admin_news_create' %}" class="btn btn-primary" style="margin-left:auto;">
+    <i class="fa-solid fa-plus"></i> New Article
+  </a>
+</div>
+
+<table class="tbl">
+  <thead>
+    <tr>
+      <th style="width:60px;">Image</th>
+      <th>Title</th>
+      <th>Published</th>
+      <th style="width:120px;">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for article in news_list %}
+    <tr>
+      <td>
+        {% if article.image %}
+        <img src="{{ article.image.url }}"
+             style="width:52px;height:40px;object-fit:cover;border-radius:5px;display:block;">
+        {% else %}
+        <div style="width:52px;height:40px;background:#f3f4f6;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#d1d5db;">
+          <i class="fa-solid fa-image"></i>
+        </div>
+        {% endif %}
+      </td>
+      <td>
+        <strong style="font-size:13.5px;">{{ article.title }}</strong>
+        {% if article.description %}
+        <p style="font-size:12px;color:#6b7280;margin:2px 0 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px;">
+          {{ article.description|truncatechars:80 }}
+        </p>
+        {% endif %}
+      </td>
+      <td style="font-size:12.5px;color:#6b7280;white-space:nowrap;">
+        {{ article.created_at|date:"M d, Y" }}
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <a href="{% url 'admin_news_edit' article.pk %}"
+             class="btn btn-sm btn-warning btn-icon" title="Edit">
+            <i class="fa-solid fa-pen"></i>
+          </a>
+          <form method="post" action="{% url 'admin_news_delete' article.pk %}"
+                style="display:inline;margin:0;"
+                onsubmit="return confirm('Delete &quot;{{ article.title|escapejs }}&quot;? This cannot be undone.')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger btn-icon" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="4">
+        <div class="empty">
+          <i class="fa-regular fa-newspaper"></i>
+          <p>No news articles yet. <a href="{% url 'admin_news_create' %}" style="font-weight:600;">Create one →</a></p>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

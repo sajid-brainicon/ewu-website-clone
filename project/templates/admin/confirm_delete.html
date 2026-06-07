@@ -1,0 +1,26 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Delete {% if type %}{{ type }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="confirm-box">
+  <div class="icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+  <h2>Delete {{ type }}?</h2>
+  <p>
+    You are about to permanently delete:<br>
+    <strong style="color:var(--text)">"{{ obj }}"</strong><br><br>
+    This action <strong>cannot be undone.</strong>
+  </p>
+  <div class="actions">
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">
+        <i class="fa-solid fa-trash"></i> Yes, Delete
+      </button>
+    </form>
+    <a href="{% if type == 'Notice' %}{% url 'admin_notice_list' %}{% else %}{% url 'admin_news_list' %}{% endif %}"
+       class="btn btn-ghost">
+      <i class="fa-solid fa-xmark"></i> Cancel
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Sliders{% endblock %}
+{% block nav_sliders %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span><span>Sliders</span>
+  </div>
+  <h1>Hero Sliders</h1>
+  <p>Manage the homepage hero slider images.</p>
+</div>
+
+<div class="search-row">
+  <span class="count-badge">{{ sliders|length }} slider{{ sliders|length|pluralize }}</span>
+  <a href="{% url 'admin_slider_create' %}" class="btn btn-primary" style="margin-left:auto">
+    <i class="fa-solid fa-plus"></i> New Slider
+  </a>
+</div>
+
+<div class="card">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Image</th>
+        <th>Title</th>
+        <th>Subtitle</th>
+        <th>Badge</th>
+        <th>Order</th>
+        <th style="text-align:right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for slider in sliders %}
+      <tr>
+        <td style="color:var(--muted);font-size:12px">{{ forloop.counter }}</td>
+        <td>
+          {% if slider.image %}
+          <img src="{{ slider.image.url }}" alt=""
+               style="width:80px;height:48px;object-fit:cover;border-radius:5px;border:1px solid var(--border)">
+          {% else %}
+          <div style="width:80px;height:48px;background:#f0f3f8;border-radius:5px;display:flex;align-items:center;justify-content:center;color:#ccc">
+            <i class="fa-regular fa-image"></i>
+          </div>
+          {% endif %}
+        </td>
+        <td class="td-title">{{ slider.title }}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          {{ slider.subtitle|default:"—" }}
+        </td>
+        <td>
+          {% if slider.badge %}
+          <span style="background:#e8a300;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700">{{ slider.badge }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td style="color:var(--muted);font-size:13px">{{ slider.order|default:"0" }}</td>
+        <td>
+          <div class="td-act">
+            <a href="{% url 'admin_slider_edit' slider.pk %}" class="btn btn-sm btn-warning btn-icon" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </a>
+            <a href="{% url 'admin_slider_delete' slider.pk %}" class="btn btn-sm btn-danger btn-icon" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7">
+          <div class="empty">
+            <i class="fa-solid fa-images"></i>
+            <p>No sliders yet. <a href="{% url 'admin_slider_create' %}" style="color:var(--navy);font-weight:600">Create one →</a></p>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,27 +1,118 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if edit %}Edit{% else %}Create{% endif %} News</title>
-    <style>
-        .form-container { max-width: 800px; margin: 30px auto; padding: 30px; background: white; border-radius: 12px; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { padding: 14px 30px; background: #1a3a8f; color: white; border: none; border-radius: 8px; }
-    </style>
-</head>
-<body>
-<div class="form-container">
-    <h1>{% if edit %}Edit News{% else %}Create News{% endif %}</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label>Title</label>
-        <input type="text" name="title" value="{{ news.title|default:'' }}" required>
-        <label>Content</label>
-        <textarea name="content" rows="12" required>{{ news.content|default:'' }}</textarea>
-        <button type="submit">Save News</button>
-    </form>
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if edit %}Edit{% else %}Create{% endif %} News{% endblock %}
+{% block nav_news %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'admin_news_list' %}">News</a>
+    <span>›</span>
+    <span>{% if edit %}Edit{% else %}Create{% endif %}</span>
+  </div>
+  <h1>{% if edit %}Edit News Article{% else %}Create News Article{% endif %}</h1>
 </div>
-</body>
-</html>
+
+{% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}" style="padding:10px 16px;border-radius:6px;margin-bottom:16px;
+    background:{% if message.tags == 'error' %}#fff0f0{% else %}#f0fff4{% endif %};
+    border:1px solid {% if message.tags == 'error' %}#fca5a5{% else %}#86efac{% endif %};
+    color:{% if message.tags == 'error' %}#dc2626{% else %}#16a34a{% endif %}">
+    {{ message }}
+  </div>
+  {% endfor %}
+{% endif %}
+
+<div class="form-wrap" style="max-width:780px">
+  {# enctype is REQUIRED for file uploads — this was likely the bug #}
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label>Title <span style="color:var(--red)">*</span></label>
+        <input type="text" name="title"
+               value="{{ obj.title|default:'' }}"
+               placeholder="e.g. EWU Wins National Robotics Championship"
+               required maxlength="300">
+      </div>
+
+      {# Field name MUST be 'description' — matches views.py POST.get('description') #}
+      <div class="fg full">
+        <label>Description <span style="color:var(--red)">*</span></label>
+        <textarea name="description"
+                  rows="8"
+                  placeholder="Write the full news article content here…"
+                  required>{{ obj.description|default:'' }}</textarea>
+      </div>
+
+      <div class="fg full">
+        <label>
+          Cover Image
+          {% if not edit %}<span style="color:var(--red)">*</span>{% else %}(leave blank to keep current){% endif %}
+        </label>
+
+        {% if obj and obj.image %}
+        <div style="margin-bottom:12px;display:flex;align-items:center;gap:14px;">
+          <img src="{{ obj.image.url }}"
+               style="height:80px;width:130px;object-fit:cover;border-radius:7px;border:1px solid #e5e7eb;">
+          <div style="font-size:12.5px;color:#6b7280;">
+            Current image<br>
+            <span style="font-size:11.5px;">Upload a new file to replace it</span>
+          </div>
+        </div>
+        {% endif %}
+
+        {# name="image" must match views.py request.FILES.get('image') #}
+        <input type="file" name="image"
+               accept="image/*"
+               {% if not edit %}required{% endif %}
+               onchange="previewImage(this)"
+               style="display:block;width:100%;padding:8px;border:1px dashed #d1d5db;border-radius:6px;cursor:pointer;">
+
+        <div id="previewWrap" style="display:none;margin-top:10px;">
+          <img id="imgPreview" src="" alt="Preview"
+               style="max-height:200px;border-radius:7px;border:1px solid #e5e7eb;">
+          <p style="font-size:11.5px;color:#9ca3af;margin-top:4px;">Preview</p>
+        </div>
+        <span class="help">JPG, PNG or WebP. Max 5MB recommended.</span>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-{% if edit %}floppy-disk{% else %}paper-plane{% endif %}"></i>
+        {% if edit %}Save Changes{% else %}Publish Article{% endif %}
+      </button>
+      <a href="{% url 'admin_news_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+      {% if edit and obj %}
+      <a href="{% url 'admin_news_delete' obj.pk %}"
+         class="btn btn-danger"
+         style="margin-left:auto"
+         onclick="return confirm('Delete this article permanently?')">
+        <i class="fa-solid fa-trash"></i> Delete
+      </a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImage(input) {
+  const wrap = document.getElementById('previewWrap');
+  const img  = document.getElementById('imgPreview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; wrap.style.display = 'block'; };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+{% endblock %}

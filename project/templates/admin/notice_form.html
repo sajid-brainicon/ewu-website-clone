@@ -1,30 +1,92 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if edit %}Edit{% else %}Create{% endif %} Notice</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        .form-container { max-width: 800px; margin: 30px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-        button { padding: 14px 30px; background: #1a3a8f; color: white; border: none; border-radius: 8px; font-size: 16px; }
-    </style>
-</head>
-<body>
-<div class="form-container">
-    <h1>{% if edit %}Edit Notice{% else %}Create New Notice{% endif %}</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label>Title</label>
-        <input type="text" name="title" value="{{ notice.title|default:'' }}" required>
-        
-        <label>Content</label>
-        <textarea name="content" rows="10" required>{{ notice.content|default:'' }}</textarea>
-        
-        <button type="submit">Save Notice</button>
-    </form>
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if edit %}Edit{% else %}Create{% endif %} News{% endblock %}
+{% block nav_news %}active{% endblock %}
+{% block topbar_title %}{% if edit %}Edit Article{% else %}New Article{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'admin_news_list' %}">News</a>
+    <span>›</span>
+    <span>{% if edit %}Edit{% else %}New{% endif %}</span>
+  </div>
+  <h1>{% if edit %}Edit News Article{% else %}Create News Article{% endif %}</h1>
+  <p>{% if edit %}Update the article details below.{% else %}Fill in the fields to publish a news article.{% endif %}</p>
 </div>
-</body>
-</html>
+
+<div class="form-wrap">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label for="title">Title <span style="color:var(--red)">*</span></label>
+        <input type="text" id="title" name="title"
+               value="{% if obj %}{{ obj.title }}{% endif %}"
+               placeholder="e.g. EWU Students Win National Robotics Competition"
+               required maxlength="200">
+      </div>
+
+      <div class="fg full">
+        <label for="image">
+          Cover Image
+          {% if not edit %}<span style="color:var(--red)">*</span>{% else %}<span style="color:var(--muted)">(leave blank to keep current)</span>{% endif %}
+        </label>
+        <input type="file" id="image" name="image" accept="image/*"
+               onchange="previewImg(this)"
+               {% if not edit %}required{% endif %}>
+
+        {% if obj and obj.image %}
+        <div class="img-preview-wrap" id="previewWrap">
+          <img src="{{ obj.image.url }}" class="img-preview" id="imgPreview" alt="Current image">
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Current image</div>
+        </div>
+        {% else %}
+        <div class="img-preview-wrap" id="previewWrap" style="display:none">
+          <img src="" class="img-preview" id="imgPreview" alt="Preview">
+        </div>
+        {% endif %}
+        <span class="help">Recommended: 800×500px. JPG, PNG or WebP.</span>
+      </div>
+
+      <div class="fg full">
+        <label for="description">Content <span style="color:var(--red)">*</span></label>
+        <textarea id="description" name="description"
+                  placeholder="Write the full news article here…"
+                  required>{% if obj %}{{ obj.description }}{% endif %}</textarea>
+        <span class="help">Shown on the news detail page.</span>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-{% if edit %}floppy-disk{% else %}paper-plane{% endif %}"></i>
+        {% if edit %}Save Changes{% else %}Publish Article{% endif %}
+      </button>
+      <a href="{% url 'admin_news_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input) {
+  const wrap = document.getElementById('previewWrap');
+  const img  = document.getElementById('imgPreview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.readAsDataURL(input.files[0]);
+    wrap.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

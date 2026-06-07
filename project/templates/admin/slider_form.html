@@ -1,0 +1,93 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if edit %}Edit{% else %}New{% endif %} Slider{% endblock %}
+{% block nav_sliders %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'admin_slider_list' %}">Sliders</a>
+    <span>›</span>
+    <span>{% if edit %}Edit{% else %}New{% endif %}</span>
+  </div>
+  <h1>{% if edit %}Edit Slider{% else %}Create Slider{% endif %}</h1>
+  <p>{% if edit %}Update the slider details below.{% else %}Upload an image for the homepage hero slider.{% endif %}</p>
+</div>
+
+<div class="form-wrap">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label>Title <span style="color:var(--red)">*</span></label>
+        <input type="text" name="title" value="{{ obj.title|default:'' }}"
+               placeholder="e.g. 25th Convocation 2026" required maxlength="200">
+      </div>
+
+      <div class="fg full">
+        <label>Subtitle</label>
+        <input type="text" name="subtitle" value="{{ obj.subtitle|default:'' }}"
+               placeholder="e.g. Chief Guest: Professor Dr. Mobasser Monem" maxlength="300">
+      </div>
+
+      <div class="fg">
+        <label>Badge Text</label>
+        <input type="text" name="badge" value="{{ obj.badge|default:'' }}"
+               placeholder="e.g. 25TH CONVOCATION 2026" maxlength="100">
+        <span class="help">Short label shown above the title (optional).</span>
+      </div>
+
+      <div class="fg">
+        <label>Order</label>
+        <input type="number" name="order" value="{{ obj.order|default:'0' }}" min="0" max="99">
+        <span class="help">Lower number = shown first.</span>
+      </div>
+
+      <div class="fg full">
+        <label>Image {% if not edit %}<span style="color:var(--red)">*</span>{% else %}(leave blank to keep current){% endif %}</label>
+        <input type="file" name="image" accept="image/*"
+               onchange="previewImg(this)" {% if not edit %}required{% endif %}>
+        {% if obj and obj.image %}
+        <div class="img-preview-wrap" style="margin-top:10px">
+          <img src="{{ obj.image.url }}" class="img-preview" id="imgPreview" alt="Current">
+          <p style="font-size:11px;color:var(--muted);margin-top:4px">Current image — upload new to replace</p>
+        </div>
+        {% else %}
+        <div class="img-preview-wrap" style="display:none;margin-top:10px" id="previewWrap">
+          <img src="" class="img-preview" id="imgPreview" alt="Preview">
+        </div>
+        {% endif %}
+        <span class="help">Recommended: 1280×520px. JPG, PNG or WebP.</span>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-{% if edit %}floppy-disk{% else %}paper-plane{% endif %}"></i>
+        {% if edit %}Save Changes{% else %}Create Slider{% endif %}
+      </button>
+      <a href="{% url 'admin_slider_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input) {
+  const wrap = document.getElementById('previewWrap');
+  const img  = document.getElementById('imgPreview');
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = e => { img.src = e.target.result; };
+    reader.readAsDataURL(input.files[0]);
+    if (wrap) wrap.style.display = 'block';
+  }
+}
+</script>
+{% endblock %}

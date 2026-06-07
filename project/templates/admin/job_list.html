@@ -1,0 +1,76 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Jobs{% endblock %}
+{% block nav_jobs %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span><span>Jobs</span>
+  </div>
+  <h1>Job Postings</h1>
+  <p>Manage career opportunities published on the site.</p>
+</div>
+
+<div class="search-row">
+  <span class="count-badge">{{ jobs|length }} posting{{ jobs|length|pluralize }}</span>
+  <a href="{% url 'admin_job_create' %}" class="btn btn-primary" style="margin-left:auto">
+    <i class="fa-solid fa-plus"></i> Post New Job
+  </a>
+</div>
+
+<table class="tbl">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Department</th>
+      <th>Type</th>
+      <th>Deadline</th>
+      <th>Status</th>
+      <th style="width:120px;">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+    <tr>
+      <td><strong>{{ job.title }}</strong></td>
+      <td style="font-size:13px;color:#4b5563;">{{ job.department }}</td>
+      <td style="font-size:13px;">{{ job.job_type }}</td>
+      <td style="font-size:12.5px;color:#6b7280;">{{ job.deadline|date:"d M Y"|default:"Open" }}</td>
+      <td>
+        {% if job.is_active %}
+        <span style="font-size:11px;background:#dcfce7;color:#15803d;padding:2px 9px;border-radius:20px;font-weight:600;">Active</span>
+        {% else %}
+        <span style="font-size:11px;background:#f3f4f6;color:#6b7280;padding:2px 9px;border-radius:20px;font-weight:600;">Hidden</span>
+        {% endif %}
+      </td>
+      <td>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <a href="{% url 'admin_job_edit' job.pk %}"
+             class="btn btn-sm btn-warning btn-icon" title="Edit">
+            <i class="fa-solid fa-pen"></i>
+          </a>
+          <form method="post" action="{% url 'admin_job_delete' job.pk %}"
+                style="display:inline;margin:0;"
+                onsubmit="return confirm('Delete &quot;{{ job.title|escapejs }}&quot;? This cannot be undone.')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-danger btn-icon" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </form>
+        </div>
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6">
+        <div class="empty">
+          <i class="fa-solid fa-briefcase"></i>
+          <p>No job postings yet. <a href="{% url 'admin_job_create' %}" style="font-weight:600;">Post one →</a></p>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

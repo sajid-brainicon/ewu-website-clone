@@ -1,0 +1,74 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Important Dates{% endblock %}
+{% block nav_dates %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+    <span>›</span><span>Important Dates</span>
+  </div>
+  <h1>Important Dates</h1>
+  <p>Manage key academic dates shown on the homepage.</p>
+</div>
+
+<div class="search-row">
+  <span class="count-badge">{{ dates|length }} date{{ dates|length|pluralize }}</span>
+  <a href="{% url 'admin_date_create' %}" class="btn btn-primary" style="margin-left:auto">
+    <i class="fa-solid fa-plus"></i> New Date
+  </a>
+</div>
+
+<div class="card">
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Date</th>
+        <th>Category</th>
+        <th>Note</th>
+        <th>Status</th>
+        <th style="text-align:right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in dates %}
+      <tr>
+        <td style="color:var(--muted);font-size:12px">{{ forloop.counter }}</td>
+        <td class="td-title">{{ item.title }}</td>
+        <td class="td-date">{{ item.date|date:"d M Y" }}</td>
+        <td style="font-size:12px">{{ item.get_category_display }}</td>
+        <td style="font-size:12px;color:var(--muted)">{{ item.note|default:"—"|truncatechars:40 }}</td>
+        <td>
+          {% if item.is_active %}
+          <span style="background:#e8f5e9;color:#1b5e20;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:700">Active</span>
+          {% else %}
+          <span style="background:#f5f5f5;color:#9e9e9e;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:700">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <div class="td-act">
+            <a href="{% url 'admin_date_edit' item.pk %}" class="btn btn-sm btn-warning btn-icon" title="Edit">
+              <i class="fa-solid fa-pen"></i>
+            </a>
+            <a href="{% url 'admin_date_delete' item.pk %}" class="btn btn-sm btn-danger btn-icon" title="Delete">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7">
+          <div class="empty">
+            <i class="fa-solid fa-calendar-days"></i>
+            <p>No dates yet. <a href="{% url 'admin_date_create' %}" style="color:var(--navy);font-weight:600">Add one →</a></p>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
