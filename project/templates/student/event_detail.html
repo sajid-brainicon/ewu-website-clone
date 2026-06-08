@@ -1,0 +1,52 @@
+{% extends 'student/base_student.html' %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block nav_events %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'student_events' %}">Events</a> › {{ event.title }}
+</div>
+
+<div class="detail-container">
+    <div class="event-detail-header">
+        <div class="event-big-date">
+            <span class="day">{{ event.date|date:"d" }}</span>
+            <span class="month">{{ event.date|date:"M" }}</span>
+            <span class="year">{{ event.date|date:"Y" }}</span>
+        </div>
+        <h1 class="detail-title">{{ event.title }}</h1>
+    </div>
+
+    <div class="detail-meta">
+        {% if event.time %}
+            <span><i class="fa-solid fa-clock"></i> {{ event.time }}</span>
+        {% endif %}
+        <span><i class="fa-solid fa-calendar"></i> {{ event.date|date:"l, d F Y" }}</span>
+        {% if event.location %}
+            <span><i class="fa-solid fa-location-dot"></i> {{ event.location }}</span>
+        {% endif %}
+    </div>
+
+    {% if event.image %}
+        <img src="{{ event.image.url }}" alt="{{ event.title }}" class="detail-image">
+    {% endif %}
+
+    <div class="detail-content">
+        {{ event.description|linebreaks }}
+    </div>
+
+    {% if event.registration_link %}
+    <div class="registration-box">
+        <a href="{{ event.registration_link }}" target="_blank" class="btn btn-success">
+            <i class="fa-solid fa-arrow-right"></i> Register Now
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="detail-actions">
+        <a href="{% url 'student_events' %}" class="btn btn-ghost">
+            ← Back to All Events
+        </a>
+    </div>
+</div>
+{% endblock %}

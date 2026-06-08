@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Register — EWU Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: linear-gradient(135deg, #0d1b3e 0%, #1a4da8 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .auth-card { background: #fff; border-radius: 16px; width: 100%; max-width: 520px; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden; }
+    .auth-header { background: linear-gradient(135deg, #0d1b3e, #1a4da8); padding: 26px 32px 20px; text-align: center; }
+    .auth-logo { width: 48px; height: 48px; background: #e8a300; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #0d1b3e; margin: 0 auto 12px; }
+    .auth-header h1 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .auth-header p  { font-size: 12px; color: rgba(255,255,255,.6); }
+    .auth-body { padding: 24px 32px; }
+    .msg { padding: 10px 14px; border-radius: 7px; font-size: 13px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; border-left: 4px solid; }
+    .msg-error { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .fg { display: flex; flex-direction: column; gap: 5px; }
+    .fg.full { grid-column: span 2; }
+    .fg label { font-size: 12px; font-weight: 600; color: #0d1b3e; }
+    .input-wrap { position: relative; }
+    .input-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 12px; }
+    .input-wrap input, .input-wrap select { width: 100%; padding: 10px 10px 10px 32px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13.5px; outline: none; transition: border-color .2s; font-family: inherit; }
+    .fg select { padding: 10px 10px 10px 32px; border: 1.5px solid #e2e8f0; border-radius: 6px; font-size: 13.5px; outline: none; width: 100%; }
+    .input-wrap input:focus, .input-wrap select:focus { border-color: #1a4da8; }
+    .hint { font-size: 11px; color: #64748b; }
+    .btn-reg { width: 100%; padding: 12px; background: #0d1b3e; color: #fff; border: none; border-radius: 7px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .2s; margin-top: 8px; }
+    .btn-reg:hover { background: #1a4da8; }
+    .auth-footer { padding: 14px 32px 22px; text-align: center; font-size: 13px; color: #64748b; }
+    .auth-footer a { color: #1a4da8; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-logo">EWU</div>
+    <h1>Create Student Account</h1>
+    <p>Use your @std.ewubd.edu email address</p>
+  </div>
+  <div class="auth-body">
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="msg msg-error"><i class="fa-solid fa-circle-xmark"></i> {{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-grid">
+        <div class="fg">
+          <label>First Name</label>
+          <div class="input-wrap"><i class="fa-solid fa-user"></i>
+            <input type="text" name="first_name" value="{{ form_data.first_name|default:'' }}" placeholder="Sajid" required></div>
+        </div>
+        <div class="fg">
+          <label>Last Name</label>
+          <div class="input-wrap"><i class="fa-solid fa-user"></i>
+            <input type="text" name="last_name" value="{{ form_data.last_name|default:'' }}" placeholder="Ahmed" required></div>
+        </div>
+        <div class="fg full">
+          <label>University Email <span style="color:#e53935">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-envelope"></i>
+            <input type="email" name="email" value="{{ form_data.email|default:'' }}" placeholder="2021-1-60-001@std.ewubd.edu" required></div>
+          <span class="hint">Must end with @std.ewubd.edu</span>
+        </div>
+        <div class="fg">
+          <label>Student ID <span style="color:#e53935">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-id-card"></i>
+            <input type="text" name="student_id" value="{{ form_data.student_id|default:'' }}" placeholder="2021-1-60-001" required></div>
+        </div>
+        <div class="fg">
+          <label>Program</label>
+          <div class="input-wrap"><i class="fa-solid fa-graduation-cap"></i>
+            <select name="program">
+              {% for val, label in programs %}
+              <option value="{{ val }}" {% if form_data.program == val %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Password <span style="color:#e53935">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-lock"></i>
+            <input type="password" name="password" placeholder="Min. 8 characters" required></div>
+        </div>
+        <div class="fg">
+          <label>Confirm Password <span style="color:#e53935">*</span></label>
+          <div class="input-wrap"><i class="fa-solid fa-lock"></i>
+            <input type="password" name="password2" placeholder="Repeat password" required></div>
+        </div>
+      </div>
+      <button type="submit" class="btn-reg"><i class="fa-solid fa-user-plus" style="margin-right:8px"></i>Create Account</button>
+    </form>
+  </div>
+  <div class="auth-footer">Already have an account? <a href="{% url 'student_login' %}">Sign in</a></div>
+</div>
+</body>
+</html>

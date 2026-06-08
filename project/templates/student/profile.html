@@ -1,0 +1,34 @@
+{% extends 'student/base_student.html' %}
+{% block title %}My Profile{% endblock %}
+{% block nav_profile %}active{% endblock %}
+
+{% block content %}
+<div class="page-head">
+    <h1>My Profile</h1>
+</div>
+
+<div class="profile-container">
+    <div class="profile-card">
+        {% if profile.profile_pic %}
+            <img src="{{ profile.profile_pic.url }}" alt="Profile" class="profile-pic">
+        {% else %}
+            <div class="profile-pic-placeholder">
+                <i class="fa-solid fa-user fa-5x"></i>
+            </div>
+        {% endif %}
+
+        <h2>{{ profile.full_name }}</h2>
+        <p class="student-id">{{ profile.student_id }}</p>
+        <p class="program">{{ profile.get_program_display }} • {{ profile.semester }} {{ profile.year }}</p>
+
+        <div class="profile-info">
+            <p><strong>Email:</strong> {{ profile.email }}</p>
+            {% if profile.phone %}<p><strong>Phone:</strong> {{ profile.phone }}</p>{% endif %}
+            {% if profile.date_of_birth %}<p><strong>Date of Birth:</strong> {{ profile.date_of_birth }}</p>{% endif %}
+            {% if profile.address %}<p><strong>Address:</strong> {{ profile.address }}</p>{% endif %}
+        </div>
+
+        <a href="{% url 'student_change_password' %}" class="btn btn-outline">Change Password</a>
+    </div>
+</div>
+{% endblock %}

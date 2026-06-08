@@ -8,6 +8,7 @@ from django.urls import re_path
 urlpatterns = [
     path('django-admin/', admin.site.urls), 
     path('', include('main.urls')),
+    path('student/', include('students.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 

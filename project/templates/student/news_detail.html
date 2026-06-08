@@ -1,0 +1,28 @@
+{% extends 'student/base_student.html' %}
+{% block title %}{{ news.title }}{% endblock %}
+{% block nav_news %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'student_news' %}">News</a> › {{ news.title }}
+</div>
+
+<div class="detail-container">
+    {% if news.image %}
+        <img src="{{ news.image.url }}" alt="{{ news.title }}" class="detail-image">
+    {% endif %}
+
+    <h1 class="detail-title">{{ news.title }}</h1>
+    <p class="detail-date">{{ news.created_at|date:"d F Y, h:i A" }}</p>
+    
+    <div class="detail-content">
+        {{ news.content|linebreaks }}
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'student_news' %}" class="btn btn-ghost">
+            ← Back to News
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'student/base_student.html' %}
+{% block title %}{{ job.title }}{% endblock %}
+{% block nav_jobs %}active{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <h1>{{ job.title }}</h1>
+    <p class="detail-meta">
+        <strong>Department:</strong> {{ job.get_department_display }} | 
+        <strong>Type:</strong> {{ job.get_job_type_display }}
+    </p>
+
+    {% if job.deadline %}
+    <p><strong>Application Deadline:</strong> {{ job.deadline|date:"d F Y" }}</p>
+    {% endif %}
+
+    <div class="detail-content">
+        {{ job.description|linebreaks }}
+    </div>
+
+    <a href="{% url 'student_jobs' %}" class="btn btn-ghost">← Back to Jobs</a>
+</div>
+{% endblock %}

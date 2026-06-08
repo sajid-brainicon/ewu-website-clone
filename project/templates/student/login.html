@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Login — EWU Portal</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0d1b3e 0%, #1a4da8 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+      overflow: hidden;
+    }
+    .auth-header {
+      background: linear-gradient(135deg, #0d1b3e, #1a4da8);
+      padding: 30px 32px 24px;
+      text-align: center;
+    }
+    .auth-logo {
+      width: 56px; height: 56px;
+      background: #e8a300; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900; color: #0d1b3e;
+      margin: 0 auto 14px;
+    }
+    .auth-header h1 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 5px; }
+    .auth-header p  { font-size: 12.5px; color: rgba(255,255,255,.6); }
+    .domain-badge {
+      display: inline-block;
+      background: rgba(255,255,255,.12);
+      color: #e8a300;
+      font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px; margin-top: 8px;
+      letter-spacing: .5px;
+    }
+    .auth-body { padding: 28px 32px; }
+    .msg { padding: 10px 14px; border-radius: 7px; font-size: 13px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; border-left: 4px solid; }
+    .msg-error   { background: #fef2f2; border-color: #ef4444; color: #991b1b; }
+    .msg-success { background: #f0fdf4; border-color: #22c55e; color: #166534; }
+    .fg { margin-bottom: 16px; }
+    .fg label { display: block; font-size: 12.5px; font-weight: 600; color: #0d1b3e; margin-bottom: 6px; }
+    .input-wrap { position: relative; }
+    .input-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 13px; }
+    .input-wrap input {
+      width: 100%; padding: 11px 12px 11px 36px;
+      border: 1.5px solid #e2e8f0; border-radius: 7px;
+      font-size: 14px; outline: none; transition: border-color .2s;
+    }
+    .input-wrap input:focus { border-color: #1a4da8; box-shadow: 0 0 0 3px rgba(26,77,168,.1); }
+    .btn-login {
+      width: 100%; padding: 12px;
+      background: #0d1b3e; color: #fff;
+      border: none; border-radius: 7px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background .2s; margin-top: 4px;
+    }
+    .btn-login:hover { background: #1a4da8; }
+    .auth-footer { padding: 16px 32px 24px; text-align: center; font-size: 13px; color: #64748b; }
+    .auth-footer a { color: #1a4da8; font-weight: 600; }
+    .domain-note {
+      background: #eff6ff; border-radius: 8px;
+      padding: 10px 14px; font-size: 12px; color: #1e40af;
+      margin-bottom: 18px; display: flex; align-items: flex-start; gap: 8px;
+    }
+    .domain-note i { margin-top: 1px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-logo">EWU</div>
+    <h1>Student Portal</h1>
+    <p>East West University</p>
+    <div class="domain-badge"><i class="fa-solid fa-shield-halved" style="margin-right:5px"></i>@std.ewubd.edu only</div>
+  </div>
+  <div class="auth-body">
+    {% if messages %}
+      {% for msg in messages %}
+      <div class="msg msg-{% if msg.tags == 'error' %}error{% else %}success{% endif %}">
+        <i class="fa-solid fa-{% if msg.tags == 'error' %}circle-xmark{% else %}circle-check{% endif %}"></i>
+        {{ msg }}
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="domain-note">
+      <i class="fa-solid fa-circle-info"></i>
+      <span>Use your university email: <strong>studentid@std.ewubd.edu</strong></span>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="fg">
+        <label>University Email</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" name="email" placeholder="2021-1-60-001@std.ewubd.edu" required autofocus>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" name="password" placeholder="Your password" required>
+        </div>
+      </div>
+      <button type="submit" class="btn-login"><i class="fa-solid fa-right-to-bracket" style="margin-right:8px"></i>Sign In</button>
+    </form>
+  </div>
+  <div class="auth-footer">
+    Don't have an account? <a href="{% url 'student_register' %}">Register here</a>
+    <div style="margin-top:8px"><a href="{% url 'home' %}">← Back to main site</a></div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,153 @@
+{% extends 'student/base_student.html' %}
+{% block title %}Dashboard — EWU Student Portal{% endblock %}
+{% block nav_dash %}active{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Welcome back, {{ profile.full_name|truncatechars:30 }} 👋</h1>
+  <p>{{ profile.get_program_display }} &nbsp;·&nbsp; ID: {{ profile.student_id }}</p>
+</div>
+
+<!-- Stats -->
+<div class="stat-row">
+  <div class="stat-card stat-card--navy">
+    <div class="stat-icon stat-icon--navy"><i class="fa-solid fa-bullhorn"></i></div>
+    <div><div class="stat-num">{{ recent_notices|length }}</div><div class="stat-lbl">New Notices</div></div>
+  </div>
+  <div class="stat-card stat-card--teal">
+    <div class="stat-icon stat-icon--teal"><i class="fa-solid fa-calendar-days"></i></div>
+    <div><div class="stat-num">{{ upcoming_events|length }}</div><div class="stat-lbl">Upcoming Events</div></div>
+  </div>
+  <div class="stat-card stat-card--amber">
+    <div class="stat-icon stat-icon--amber"><i class="fa-solid fa-briefcase"></i></div>
+    <div><div class="stat-num">{{ active_jobs|length }}</div><div class="stat-lbl">Open Jobs</div></div>
+  </div>
+  <div class="stat-card stat-card--blue">
+    <div class="stat-icon stat-icon--blue"><i class="fa-solid fa-newspaper"></i></div>
+    <div><div class="stat-num">{{ recent_news|length }}</div><div class="stat-lbl">Latest News</div></div>
+  </div>
+</div>
+
+<!-- Recent Notices + Upcoming Events -->
+<div class="grid-2" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-bullhorn" style="color:#e8a300"></i> Recent Notices</h3>
+      <a href="{% url 'student_notices' %}" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="item-list">
+      {% for notice in recent_notices %}
+      <div class="item-row">
+        <div class="item-date-box">
+          <div class="d">{{ notice.created_at|date:"d" }}</div>
+          <div class="m">{{ notice.created_at|date:"M" }}</div>
+        </div>
+        <div>
+          <div class="item-title"><a href="{% url 'student_notice_detail' notice.pk %}">{{ notice.title|truncatechars:55 }}</a></div>
+          <div class="item-meta">{{ notice.created_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state"><i class="fa-solid fa-bullhorn"></i><p>No notices yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-calendar-days" style="color:#0d7a5a"></i> Upcoming Events</h3>
+      <a href="{% url 'student_events' %}" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+      {% for ev in upcoming_events %}
+      <div class="event-card">
+        <div class="event-date-strip">
+          <div class="ev-d">{{ ev.date|date:"d" }}</div>
+          <div class="ev-m">{{ ev.date|date:"M" }}</div>
+        </div>
+        <div class="event-info">
+          <h5>{{ ev.title|truncatechars:50 }}</h5>
+          <div class="ev-meta">
+            {% if ev.location %}<span><i class="fa-solid fa-location-dot"></i> {{ ev.location|truncatechars:30 }}</span>{% endif %}
+            <span><i class="fa-regular fa-clock"></i> {{ ev.date|date:"d M Y" }}</span>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state" style="padding:30px"><i class="fa-solid fa-calendar-days"></i><p>No upcoming events.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Latest News + Important Dates -->
+<div class="grid-2" style="margin-bottom:20px">
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-newspaper" style="color:#1a4da8"></i> Latest News</h3>
+      <a href="{% url 'student_news' %}" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="item-list">
+      {% for item in recent_news %}
+      <div class="item-row">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" style="width:60px;height:42px;object-fit:cover;border-radius:5px;flex-shrink:0" alt="">
+        {% endif %}
+        <div>
+          <div class="item-title"><a href="{% url 'student_news_detail' item.pk %}">{{ item.title|truncatechars:52 }}</a></div>
+          <div class="item-meta">{{ item.created_at|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state"><i class="fa-solid fa-newspaper"></i><p>No news yet.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3><i class="fa-solid fa-clock" style="color:#e8a300"></i> Important Dates</h3>
+    </div>
+    <div class="item-list">
+      {% for d in important_dates %}
+      <div class="item-row">
+        <div class="item-date-box" style="background:#0d7a5a">
+          <div class="d">{{ d.date|date:"d" }}</div>
+          <div class="m">{{ d.date|date:"M" }}</div>
+        </div>
+        <div>
+          <div class="item-title">{{ d.title|truncatechars:52 }}</div>
+          <div class="item-meta">{{ d.get_category_display }} &nbsp;·&nbsp; {{ d.date|date:"d M Y" }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-state"><i class="fa-solid fa-clock"></i><p>No important dates.</p></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Job Openings -->
+{% if active_jobs %}
+<div class="card">
+  <div class="card-head">
+    <h3><i class="fa-solid fa-briefcase" style="color:#0d7a5a"></i> Job Openings</h3>
+    <a href="{% url 'student_jobs' %}" class="btn btn-ghost btn-sm">View All</a>
+  </div>
+  <div class="card-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+    {% for job in active_jobs %}
+    <div class="job-card">
+      <h5>{{ job.title|truncatechars:48 }}</h5>
+      <div class="job-meta">
+        <span><i class="fa-solid fa-building"></i> {{ job.department }}</span>
+        <span><i class="fa-solid fa-clock"></i> {{ job.get_job_type_display }}</span>
+        {% if job.deadline %}<span><i class="fa-solid fa-calendar-xmark"></i> Deadline: {{ job.deadline|date:"d M Y" }}</span>{% endif %}
+      </div>
+      <a href="{% url 'student_job_detail' job.pk %}" class="btn btn-teal btn-sm"><i class="fa-solid fa-arrow-right"></i> View Details</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
