@@ -77,6 +77,13 @@ urlpatterns = [
     path('admin/jobs/<int:pk>/edit/', views.job_edit, name='admin_job_edit'),
     path('admin/jobs/<int:pk>/delete/', views.job_delete, name='admin_job_delete'),
 
+    # Unified Login
+    path('login/', views.unified_login, name='login'),
+    path('admin/login/', views.unified_login, name='admin_login'),
+    path('student/login/', views.unified_login, name='student_login'),
+    path('logout/', views.unified_logout, name='logout'),
+    #path('admin/logout/', views.unified_logout, name='admin_logout'),
+    #path('student/logout/', views.unified_logout, name='student_logout'),
     # Gallery CRUD
     path('admin/gallery/', views.gallery_list_admin, name='admin_gallery_list'),
     path('admin/gallery/create/', views.gallery_create, name='admin_gallery_create'),

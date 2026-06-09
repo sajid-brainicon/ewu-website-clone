@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
-
+from django.contrib.auth.models import User
 from .models import (
     Slider, Notice, News, Event, ImportantDate,
     ChatMessage, Achievement, Job, GalleryCategory, GalleryPhoto
@@ -615,3 +615,57 @@ def gallery_delete(request, pk):
         messages.success(request, 'Photo deleted.')
         return redirect('admin_gallery_list')
     return render(request, 'admin/confirm_delete.html', {'obj': obj, 'type': 'Gallery Photo', 'cancel': 'admin_gallery_list'})
+
+
+def unified_login(request):
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            return redirect('admin_dashboard')
+        elif hasattr(request.user, 'student_profile'):
+            return redirect('student_dashboard')
+        return redirect('home')
+
+    if request.method == 'POST':
+        identifier = request.POST.get('email', '').strip()   
+        password = request.POST.get('password', '')
+
+        if not identifier or not password:
+            messages.error(request, 'Email/Username and password are required.')
+            return render(request, 'login.html')
+
+        user = None
+
+        
+        try:
+            user_obj = User.objects.get(email=identifier)
+            user = authenticate(request, username=user_obj.username, password=password)
+        except User.DoesNotExist:
+            pass
+
+        
+        if not user:
+            try:
+                user = authenticate(request, username=identifier, password=password)
+            except Exception:
+                pass
+
+        if user and user.is_active:
+            login(request, user)
+            
+            if user.is_staff:
+                messages.success(request, 'Welcome to Admin Panel!')
+                return redirect('admin_dashboard')
+            elif hasattr(user, 'student_profile'):
+                messages.success(request, f'Welcome back!')
+                return redirect('student_dashboard')
+            else:
+                return redirect('home')
+        else:
+            messages.error(request, 'Invalid credentials. Please try again.')
+
+    return render(request, 'login.html')
+
+def unified_logout(request):
+    logout(request)
+    messages.success(request, 'Logged out successfully.')
+    return redirect('home')
