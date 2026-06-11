@@ -341,7 +341,7 @@
     {% endif %}
 
     <div class="sidebar-section">Menu</div>
-    <a href="{% url 'student_dashboard' %}"       class="nav-link {% block nav_dash %}{% endblock %}"><i class="fa-solid fa-house"></i> Dashboard</a>
+    <a href="{% url 'dashboard' %}"       class="nav-link {% block nav_dash %}{% endblock %}"><i class="fa-solid fa-house"></i> Dashboard</a>
     <a href="{% url 'student_notices' %}"          class="nav-link {% block nav_notices %}{% endblock %}"><i class="fa-solid fa-bullhorn"></i> Notices</a>
     <a href="{% url 'student_news' %}"             class="nav-link {% block nav_news %}{% endblock %}"><i class="fa-solid fa-newspaper"></i> News</a>
     <a href="{% url 'student_events' %}"           class="nav-link {% block nav_events %}{% endblock %}"><i class="fa-solid fa-calendar-days"></i> Events</a>

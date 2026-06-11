@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
+from django.contrib.auth.models import User as DjangoUser
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
@@ -12,17 +13,17 @@ from .models import (
     Slider, Notice, News, Event, ImportantDate,
     ChatMessage, Achievement, Job, GalleryCategory, GalleryPhoto
 )
-
+from students.models import StudentProfile
 
 # ====================== HELPERS ======================
 def _is_staff(user):
     return user.is_authenticated and user.is_staff
 
-
 def _staff_required(view_func):
-    return login_required(login_url='/admin/login/')(
-        user_passes_test(_is_staff, login_url='/admin/login/')(view_func)
+    return login_required(login_url='/login/')(
+        user_passes_test(_is_staff, login_url='/login/')(view_func)
     )
+
 
 
 DEPT_CHOICES = [
@@ -619,53 +620,249 @@ def gallery_delete(request, pk):
 
 def unified_login(request):
     if request.user.is_authenticated:
-        if request.user.is_staff:
-            return redirect('admin_dashboard')
-        elif hasattr(request.user, 'student_profile'):
-            return redirect('student_dashboard')
-        return redirect('home')
-
+        return redirect('dashboard')
+ 
     if request.method == 'POST':
-        identifier = request.POST.get('email', '').strip()   
-        password = request.POST.get('password', '')
-
-        if not identifier or not password:
-            messages.error(request, 'Email/Username and password are required.')
-            return render(request, 'login.html')
-
+        identifier = request.POST.get('identifier', '').strip()
+        password   = request.POST.get('password', '')
+ 
         user = None
-
-        
-        try:
-            user_obj = User.objects.get(email=identifier)
-            user = authenticate(request, username=user_obj.username, password=password)
-        except User.DoesNotExist:
-            pass
-
-        
-        if not user:
+ 
+        # Try username directly (admin tab sends plain username)
+        user = authenticate(request, username=identifier, password=password)
+ 
+        # If that failed, try looking up by email (student tab sends email)
+        if user is None and '@' in identifier:
             try:
-                user = authenticate(request, username=identifier, password=password)
-            except Exception:
+                user_obj = DjangoUser.objects.get(email=identifier.lower())
+                user = authenticate(request, username=user_obj.username, password=password)
+            except DjangoUser.DoesNotExist:
                 pass
-
-        if user and user.is_active:
+ 
+        if user is not None and user.is_active:
             login(request, user)
-            
-            if user.is_staff:
-                messages.success(request, 'Welcome to Admin Panel!')
-                return redirect('admin_dashboard')
-            elif hasattr(user, 'student_profile'):
-                messages.success(request, f'Welcome back!')
-                return redirect('student_dashboard')
-            else:
-                return redirect('home')
-        else:
-            messages.error(request, 'Invalid credentials. Please try again.')
-
+            return redirect('dashboard')
+ 
+        messages.error(request, 'Invalid credentials. Please try again.')
+ 
     return render(request, 'login.html')
-
+ 
+ 
+# 3. unified_logout — redirects to /login/
+@login_required(login_url='/login/')
 def unified_logout(request):
     logout(request)
-    messages.success(request, 'Logged out successfully.')
-    return redirect('home')
+    return redirect('login')
+ 
+@login_required(login_url='/login/')
+def unified_dashboard(request):
+    today = datetime.date.today()
+    
+    # Ensure profile exists for students
+    profile = getattr(request.user, 'student_profile', None)
+
+    # Base context
+    context = {
+        'title': 'Dashboard',
+        'profile': profile,
+        'today': today,
+    }
+
+    if request.user.is_staff:
+        # === ADMIN DASHBOARD ===
+        context.update({
+            'total_notices': Notice.objects.count(),
+            'total_news': News.objects.count(),
+            'total_events': Event.objects.filter(date__gte=today).count(),
+            'total_jobs': Job.objects.filter(is_active=True).count(),
+            'total_achievements': Achievement.objects.filter(is_active=True).count(),
+            
+            'recent_notices': Notice.objects.order_by('-created_at')[:5],
+            'recent_news': News.objects.order_by('-created_at')[:5],
+            'upcoming_events': Event.objects.filter(date__gte=today).order_by('date')[:5],
+            'active_jobs': Job.objects.filter(is_active=True).order_by('-posted_at')[:5],
+        })
+        return render(request, 'admin/dashboard.html', context)
+    
+    else:
+        # === STUDENT DASHBOARD ===
+        context.update({
+            'notices': Notice.objects.order_by('-created_at')[:10],
+            'news': News.objects.order_by('-created_at')[:8],
+            'upcoming_events': Event.objects.filter(date__gte=today).order_by('date')[:6],
+            'active_jobs': Job.objects.filter(is_active=True).order_by('-posted_at')[:6],
+        })
+        return render(request, 'student/dashboard.html', context)
+
+def _get_profile(request):
+    """Returns student profile or None."""
+    return getattr(request.user, 'student_profile', None)
+ 
+ 
+def _student_ctx(request):
+    """Base context injected into every student-facing page."""
+    return {'profile': _get_profile(request)}
+ 
+ 
+ 
+def unified_notices(request):
+    q = request.GET.get('q', '').strip()
+    qs = Notice.objects.order_by('-created_at')
+    if q:
+        qs = qs.filter(title__icontains=q)
+ 
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/notices.html', {
+            **_student_ctx(request),
+            'notices': qs,
+            'q': q,
+        })
+    return render(request, 'notices.html', {'notices': qs, 'q': q})
+ 
+ 
+def unified_notice_detail(request, pk):
+    notice = get_object_or_404(Notice, pk=pk)
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/notice_detail.html', {
+            **_student_ctx(request),
+            'notice': notice,
+        })
+    return render(request, 'notice_details.html', {'notice': notice})
+ 
+  
+def unified_news(request):
+    q = request.GET.get('q', '').strip()
+    qs = News.objects.order_by('-created_at')
+    if q:
+        qs = qs.filter(title__icontains=q)
+ 
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/news.html', {
+            **_student_ctx(request),
+            'news_list': qs,
+            'q': q,
+        })
+    return render(request, 'news.html', {'all_news': qs})
+ 
+ 
+def unified_news_detail(request, pk):
+    news = get_object_or_404(News, pk=pk)
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/news_detail.html', {
+            **_student_ctx(request),
+            'news': news,
+        })
+    return render(request, 'news_details.html', {'news': news})
+ 
+ 
+ 
+def unified_events(request):
+    today = datetime.date.today()
+    events = Event.objects.filter(is_active=True, date__gte=today).order_by('date')
+ 
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/events.html', {
+            **_student_ctx(request),
+            'events': events,
+        })
+    return render(request, 'events.html', {'events': events})
+ 
+ 
+def unified_event_detail(request, pk):
+    event = get_object_or_404(Event, pk=pk, is_active=True)
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/event_detail.html', {
+            **_student_ctx(request),
+            'event': event,
+        })
+    return render(request, 'event_detail.html', {'event': event})
+ 
+ 
+ 
+DEPT_CHOICES_LOCAL = [
+    ('CSE', 'Computer Science & Engineering'),
+    ('EEE', 'Electrical & Electronic Engineering'),
+    ('BBA', 'Business Administration'),
+    ('Pharmacy', 'Pharmacy'),
+    ('Economics', 'Economics'),
+    ('English', 'English'),
+    ('Law', 'Law'),
+    ('Architecture', 'Architecture'),
+    ('Admin', 'Administration'),
+]
+ 
+def unified_jobs(request):
+    q    = request.GET.get('q', '').strip()
+    dept = request.GET.get('dept', '')
+    qs   = Job.objects.filter(is_active=True).order_by('-posted_at')
+    if q:
+        qs = qs.filter(title__icontains=q)
+    if dept:
+        qs = qs.filter(department=dept)
+ 
+    ctx = {'jobs': qs, 'q': q, 'dept': dept, 'dept_choices': DEPT_CHOICES_LOCAL}
+ 
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/jobs.html', {**_student_ctx(request), **ctx})
+    return render(request, 'jobs.html', ctx)
+ 
+ 
+def unified_job_detail(request, pk):
+    job = get_object_or_404(Job, pk=pk, is_active=True)
+    if request.user.is_authenticated and _get_profile(request):
+        return render(request, 'student/job_detail.html', {
+            **_student_ctx(request),
+            'job': job,
+        })
+    return render(request, 'job_details.html', {'job': job})
+ 
+ 
+ 
+@login_required(login_url='/login/')
+def unified_profile(request):
+    profile = _get_profile(request)
+    if not profile:
+        return redirect('dashboard')
+ 
+    if request.method == 'POST':
+        request.user.first_name = request.POST.get('first_name', '').strip()
+        request.user.last_name  = request.POST.get('last_name', '').strip()
+        request.user.save()
+        profile.phone   = request.POST.get('phone', '').strip()
+        profile.address = request.POST.get('address', '').strip()
+        if request.FILES.get('profile_pic'):
+            profile.profile_pic = request.FILES['profile_pic']
+        profile.save()
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('student_profile')
+ 
+    return render(request, 'student/profile.html', {'profile': profile})
+ 
+ 
+@login_required(login_url='/login/')
+def unified_change_password(request):
+    profile = _get_profile(request)
+    if not profile:
+        return redirect('dashboard')
+ 
+    if request.method == 'POST':
+        current = request.POST.get('current_password', '')
+        new_pw  = request.POST.get('new_password', '')
+        confirm = request.POST.get('confirm_password', '')
+ 
+        if not request.user.check_password(current):
+            messages.error(request, 'Current password is incorrect.')
+        elif new_pw != confirm:
+            messages.error(request, 'New passwords do not match.')
+        elif len(new_pw) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+        else:
+            request.user.set_password(new_pw)
+            request.user.save()
+            user = authenticate(username=request.user.username, password=new_pw)
+            if user:
+                login(request, user)
+            messages.success(request, 'Password changed successfully.')
+            return redirect('student_profile')
+ 
+    return render(request, 'student/change_password.html', {'profile': profile})
