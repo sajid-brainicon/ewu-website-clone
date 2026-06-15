@@ -1,0 +1,82 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}{% if is_new %}New Role{% else %}Edit Role{% endif %}{% endblock %}
+{% block nav_roles %}active{% endblock %}
+{% block topbar_title %}{% if is_new %}New Role{% else %}Edit Role{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'role_list' %}">Roles &amp; Permissions</a>
+    <span>›</span>
+    <span>{% if is_new %}New{% else %}Edit{% endif %}</span>
+  </div>
+  <h1>{% if is_new %}New Role{% else %}Edit Role: {{ group.name }}{% endif %}</h1>
+  <p>Tick whatever this role should be able to view, add, change, or delete.</p>
+</div>
+
+<div class="form-wrap">
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-grid">
+
+      <div class="fg full">
+        <label for="id_name">Role Name <span style="color:var(--red)">*</span></label>
+        {{ form.name }}
+        {% for error in form.name.errors %}
+          <span class="help" style="color:var(--red)">{{ error }}</span>
+        {% endfor %}
+      </div>
+
+      <div class="fg full">
+        <label>Permissions</label>
+        <div class="perm-grid">
+          {% for checkbox in form.permissions %}
+            <label class="perm-item">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+          {% endfor %}
+        </div>
+        <span class="help">
+          Each model has four permissions: view (see it in the dashboard),
+          add, change, and delete. A role with only "view" gets a read-only
+          page; ticking "add"/"change"/"delete" too adds the matching
+          buttons.
+        </span>
+      </div>
+
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Save Role
+      </button>
+      <a href="{% url 'role_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 8px;
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+  }
+  .perm-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+</style>
+{% endblock %}

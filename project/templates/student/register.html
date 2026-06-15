@@ -37,7 +37,7 @@
   <div class="auth-header">
     <div class="auth-logo">EWU</div>
     <h1>Create Student Account</h1>
-    <p>Use your @std.ewubd.edu email address</p>
+    <p>Use your email address</p>
   </div>
   <div class="auth-body">
     {% if messages %}
@@ -62,14 +62,9 @@
         <div class="fg full">
           <label>University Email <span style="color:#e53935">*</span></label>
           <div class="input-wrap"><i class="fa-solid fa-envelope"></i>
-            <input type="email" name="email" value="{{ form_data.email|default:'' }}" placeholder="2021-1-60-001@std.ewubd.edu" required></div>
-          <span class="hint">Must end with @std.ewubd.edu</span>
+            <input type="email" name="email" value="{{ form_data.email|default:'' }}" placeholder="Place Your mail" required></div>
         </div>
-        <div class="fg">
-          <label>Student ID <span style="color:#e53935">*</span></label>
-          <div class="input-wrap"><i class="fa-solid fa-id-card"></i>
-            <input type="text" name="student_id" value="{{ form_data.student_id|default:'' }}" placeholder="2021-1-60-001" required></div>
-        </div>
+        
         <div class="fg">
           <label>Program</label>
           <div class="input-wrap"><i class="fa-solid fa-graduation-cap"></i>
@@ -94,7 +89,7 @@
       <button type="submit" class="btn-reg"><i class="fa-solid fa-user-plus" style="margin-right:8px"></i>Create Account</button>
     </form>
   </div>
-  <div class="auth-footer">Already have an account? <a href="{% url 'student_login' %}">Sign in</a></div>
+  <div class="auth-footer">Already have an account? <a href="{% url 'login' %}">Sign in</a></div>
 </div>
 </body>
 </html>

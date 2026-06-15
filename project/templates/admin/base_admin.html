@@ -374,32 +374,60 @@
       </a>
 
       <div class="sidebar-section">Content</div>
+      {% if perms.main.view_slider %}
       <a href="{% url 'admin_slider_list' %}" class="sidebar-link {% block nav_sliders %}{% endblock %}">
         <i class="fa-solid fa-images"></i> Sliders
       </a>
+      {% endif %}
+      {% if perms.main.view_notice %}
       <a href="{% url 'admin_notice_list' %}" class="sidebar-link {% block nav_notice %}{% endblock %}">
   <i class="fa-solid fa-bullhorn"></i> Notices
 </a>
+      {% endif %}
+      {% if perms.main.view_news %}
       <a href="{% url 'admin_news_list' %}" class="sidebar-link {% block nav_news %}{% endblock %}">
         <i class="fa-solid fa-newspaper"></i> News
       </a>
+      {% endif %}
+      {% if perms.main.view_event %}
       <a href="{% url 'admin_event_list' %}" class="sidebar-link {% block nav_events %}{% endblock %}">
         <i class="fa-solid fa-calendar-days"></i> Events
       </a>
+      {% endif %}
+      {% if perms.main.view_importantdate %}
       <a href="{% url 'admin_date_list' %}" class="sidebar-link {% block nav_dates %}{% endblock %}">
         <i class="fa-solid fa-clock"></i> Important Dates
       </a>
+      {% endif %}
+      {% if perms.main.view_achievement %}
       <a href="{% url 'admin_achievement_list' %}" class="sidebar-link {% block nav_achievements %}{% endblock %}">
         <i class="fa-solid fa-trophy"></i> Achievements
       </a>
+      {% endif %}
 
+      {% if perms.main.view_job or perms.main.view_galleryphoto %}
       <div class="sidebar-section">Other</div>
+      {% if perms.main.view_job %}
       <a href="{% url 'admin_job_list' %}" class="sidebar-link {% block nav_jobs %}{% endblock %}">
         <i class="fa-solid fa-briefcase"></i> Jobs
       </a>
+      {% endif %}
+      {% if perms.main.view_galleryphoto %}
       <a href="{% url 'admin_gallery_list' %}" class="sidebar-link {% block nav_gallery %}{% endblock %}">
         <i class="fa-solid fa-photo-film"></i> Gallery
       </a>
+      {% endif %}
+      {% endif %}
+
+      {% if request.user.is_superuser %}
+      <div class="sidebar-section">Administration</div>
+      <a href="{% url 'role_list' %}" class="sidebar-link {% block nav_roles %}{% endblock %}">
+        <i class="fa-solid fa-user-shield"></i> Roles &amp; Permissions
+      </a>
+      <a href="{% url 'rbac_user_list' %}" class="sidebar-link {% block nav_users %}{% endblock %}">
+        <i class="fa-solid fa-users"></i> Users
+      </a>
+      {% endif %}
     </nav>
 
     <div class="sidebar-logout">

@@ -1,0 +1,62 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Assign Roles{% endblock %}
+{% block nav_users %}active{% endblock %}
+{% block topbar_title %}Assign Roles{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <a href="{% url 'rbac_user_list' %}">Users</a>
+    <span>›</span>
+    <span>{{ user_obj.username }}</span>
+  </div>
+  <h1>Roles for {{ user_obj.username }}</h1>
+  <p>{{ user_obj.email|default:"No email on file" }}</p>
+</div>
+
+{% if user_obj.is_superuser %}
+<div class="msg msg-info">
+  <i class="fa-solid fa-circle-info"></i>
+  This user is a Django superuser and already has full access regardless of
+  role membership. Roles assigned below only matter if their superuser
+  status is removed later.
+</div>
+{% endif %}
+
+<div class="form-wrap">
+  <form method="post">
+    {% csrf_token %}
+    <div class="perm-grid">
+      {% for checkbox in form.groups %}
+        <label class="perm-item">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+      {% empty %}
+        <p style="color:var(--muted)">No roles exist yet. <a href="{% url 'role_create' %}">Create one first</a>.</p>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">
+        <i class="fa-solid fa-floppy-disk"></i> Save
+      </button>
+      <a href="{% url 'rbac_user_list' %}" class="btn btn-ghost">
+        <i class="fa-solid fa-xmark"></i> Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+  }
+  .perm-item { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: var(--text); }
+</style>
+{% endblock %}

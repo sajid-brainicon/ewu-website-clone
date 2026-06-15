@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Slider, Notice, News, Event, ImportantDate, ChatMessage, Achievement, GalleryCategory, GalleryPhoto, Job
+from .models import Slider, Notice, News, Event, ImportantDate, ChatMessage, Achievement, GalleryCategory, GalleryPhoto, Job, ManagedModule
 
 
 @admin.register(Slider)
@@ -126,3 +126,9 @@ class JobAdmin(admin.ModelAdmin):
             'fields': ('description', 'requirements', 'how_to_apply')
         }),
     )
+
+@admin.register(ManagedModule)
+class ManagedModuleAdmin(admin.ModelAdmin):
+    list_display = ('display_name', 'content_type', 'order', 'is_active')
+    list_editable = ('order', 'is_active')
+    ordering = ('order',)

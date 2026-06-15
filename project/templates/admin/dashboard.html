@@ -10,64 +10,98 @@
 
 <!-- ── Stat Cards ─────────────────────────────────────────── -->
 <div class="stat-grid">
+  {% if perms.main.view_notice %}
   <a href="{% url 'admin_notice_list' %}" class="stat-card" style="--c:#2563eb">
     <div class="stat-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="fa-solid fa-bell"></i></div>
     <div class="stat-num">{{ total_notices }}</div>
     <div class="stat-lbl">Notices</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_news %}
   <a href="{% url 'admin_news_list' %}" class="stat-card" style="--c:#16a34a">
     <div class="stat-icon" style="background:rgba(22,163,74,.1);color:#16a34a"><i class="fa-solid fa-newspaper"></i></div>
     <div class="stat-num">{{ total_news }}</div>
     <div class="stat-lbl">News Articles</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_event %}
   <a href="{% url 'admin_event_list' %}" class="stat-card" style="--c:#d97706">
     <div class="stat-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="fa-solid fa-calendar-days"></i></div>
     <div class="stat-num">{{ total_events }}</div>
     <div class="stat-lbl">Active Events</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_slider %}
   <a href="{% url 'admin_slider_list' %}" class="stat-card" style="--c:#7c3aed">
     <div class="stat-icon" style="background:rgba(124,58,237,.1);color:#7c3aed"><i class="fa-solid fa-images"></i></div>
     <div class="stat-num">{{ total_sliders }}</div>
     <div class="stat-lbl">Sliders</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_galleryphoto %}
   <a href="{% url 'admin_gallery_list' %}" class="stat-card" style="--c:#db2777">
     <div class="stat-icon" style="background:rgba(219,39,119,.1);color:#db2777"><i class="fa-solid fa-photo-film"></i></div>
     <div class="stat-num">{{ total_gallery }}</div>
     <div class="stat-lbl">Gallery Photos</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_job %}
   <a href="{% url 'admin_job_list' %}" class="stat-card" style="--c:#0891b2">
     <div class="stat-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="fa-solid fa-briefcase"></i></div>
     <div class="stat-num">{{ total_jobs }}</div>
     <div class="stat-lbl">Active Jobs</div>
   </a>
+  {% endif %}
+  {% if perms.main.view_achievement %}
   <a href="{% url 'admin_achievement_list' %}" class="stat-card" style="--c:#ea580c">
     <div class="stat-icon" style="background:rgba(234,88,12,.1);color:#ea580c"><i class="fa-solid fa-trophy"></i></div>
     <div class="stat-num">{{ total_achievements }}</div>
     <div class="stat-lbl">Achievements</div>
   </a>
+  {% endif %}
 </div>
 
 <!-- ── Quick Actions ──────────────────────────────────────── -->
+{% if perms.main.add_notice or perms.main.add_news or perms.main.add_galleryphoto or perms.main.add_job or perms.main.add_event or perms.main.add_achievement or perms.main.add_slider %}
 <div style="margin-bottom:28px;">
   <h2 class="section-title">Quick Actions</h2>
   <div style="display:flex;flex-wrap:wrap;gap:10px;">
+    {% if perms.main.add_notice %}
     <a href="{% url 'admin_notice_create' %}"     class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Notice</a>
+    {% endif %}
+    {% if perms.main.add_news %}
     <a href="{% url 'admin_news_create' %}"        class="btn btn-primary"><i class="fa-solid fa-plus"></i> New Article</a>
+    {% endif %}
+    {% if perms.main.add_galleryphoto %}
     <a href="{% url 'admin_gallery_create' %}"     class="btn btn-primary"><i class="fa-solid fa-plus"></i> Upload Photo</a>
+    {% endif %}
+    {% if perms.main.add_job %}
     <a href="{% url 'admin_job_create' %}"         class="btn btn-primary"><i class="fa-solid fa-plus"></i> Post Job</a>
+    {% endif %}
+    {% if perms.main.add_event %}
     <a href="{% url 'admin_event_create' %}"       class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add Event</a>
+    {% endif %}
+    {% if perms.main.add_achievement %}
     <a href="{% url 'admin_achievement_create' %}" class="btn btn-ghost">  <i class="fa-solid fa-plus"></i> Add Achievement</a>
+    {% endif %}
+    {% if perms.main.add_slider %}
     <a href="{% url 'admin_slider_create' %}"      class="btn btn-ghost">  <i class="fa-solid fa-plus"></i> Add Slider</a>
+    {% endif %}
   </div>
 </div>
+{% endif %}
 
 <!-- ── Recent Notices & News ──────────────────────────────── -->
+{% if perms.main.view_notice or perms.main.view_news %}
 <div class="two-col" style="margin-bottom:24px;">
 
+  {% if perms.main.view_notice %}
   <div class="dash-panel">
     <div class="dash-panel-head">
       <span><i class="fa-solid fa-bell" style="color:#2563eb;margin-right:7px;"></i>Recent Notices</span>
+      {% if perms.main.add_notice %}
       <a href="{% url 'admin_notice_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i> New</a>
+      {% endif %}
     </div>
     {% if recent_notices %}
     <ul class="dash-list">
@@ -78,8 +112,12 @@
           <div class="dash-item-date">{{ n.created_at|date:"M d, Y" }}</div>
         </div>
         <div style="display:flex;gap:5px;flex-shrink:0;">
+          {% if perms.main.change_notice %}
           <a href="{% url 'admin_notice_edit' n.pk %}" class="btn btn-sm btn-warning btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></a>
+          {% endif %}
+          {% if perms.main.delete_notice %}
           <a href="{% url 'admin_notice_delete' n.pk %}" class="btn btn-sm btn-danger btn-icon" onclick="return confirm('Delete this notice?')" title="Delete"><i class="fa-solid fa-trash"></i></a>
+          {% endif %}
         </div>
       </li>
       {% endfor %}
@@ -89,11 +127,15 @@
     <div class="empty" style="padding:30px 16px;"><i class="fa-solid fa-bell-slash"></i><p>No notices yet.</p></div>
     {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_news %}
   <div class="dash-panel">
     <div class="dash-panel-head">
       <span><i class="fa-solid fa-newspaper" style="color:#16a34a;margin-right:7px;"></i>Recent News</span>
+      {% if perms.main.add_news %}
       <a href="{% url 'admin_news_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i> New</a>
+      {% endif %}
     </div>
     {% if recent_news %}
     <ul class="dash-list">
@@ -111,8 +153,12 @@
           <div class="dash-item-date">{{ article.created_at|date:"M d, Y" }}</div>
         </div>
         <div style="display:flex;gap:5px;flex-shrink:0;">
+          {% if perms.main.change_news %}
           <a href="{% url 'admin_news_edit' article.pk %}" class="btn btn-sm btn-warning btn-icon" title="Edit"><i class="fa-solid fa-pen"></i></a>
+          {% endif %}
+          {% if perms.main.delete_news %}
           <a href="{% url 'admin_news_delete' article.pk %}" class="btn btn-sm btn-danger btn-icon" onclick="return confirm('Delete this article?')" title="Delete"><i class="fa-solid fa-trash"></i></a>
+          {% endif %}
         </div>
       </li>
       {% endfor %}
@@ -122,78 +168,120 @@
     <div class="empty" style="padding:30px 16px;"><i class="fa-solid fa-newspaper"></i><p>No articles yet.</p></div>
     {% endif %}
   </div>
+  {% endif %}
 
 </div>
+{% endif %}
 
 <!-- ── All Sections Grid ───────────────────────────────────── -->
+{% if perms.main.view_notice or perms.main.view_news or perms.main.view_slider or perms.main.view_event or perms.main.view_galleryphoto or perms.main.view_job or perms.main.view_achievement or perms.main.view_importantdate %}
 <h2 class="section-title">All Sections</h2>
 <div class="section-grid">
 
+  {% if perms.main.view_notice %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(37,99,235,.1);color:#2563eb"><i class="fa-solid fa-bell"></i></div>
       <div><div class="sc-label">Notices</div><a href="{% url 'admin_notice_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_notice %}
     <a href="{% url 'admin_notice_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_news %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(22,163,74,.1);color:#16a34a"><i class="fa-solid fa-newspaper"></i></div>
       <div><div class="sc-label">News</div><a href="{% url 'admin_news_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_news %}
     <a href="{% url 'admin_news_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_slider %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(124,58,237,.1);color:#7c3aed"><i class="fa-solid fa-images"></i></div>
       <div><div class="sc-label">Sliders</div><a href="{% url 'admin_slider_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_slider %}
     <a href="{% url 'admin_slider_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_event %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(217,119,6,.1);color:#d97706"><i class="fa-solid fa-calendar-days"></i></div>
       <div><div class="sc-label">Events</div><a href="{% url 'admin_event_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_event %}
     <a href="{% url 'admin_event_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_galleryphoto %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(219,39,119,.1);color:#db2777"><i class="fa-solid fa-photo-film"></i></div>
       <div><div class="sc-label">Gallery</div><a href="{% url 'admin_gallery_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_galleryphoto %}
     <a href="{% url 'admin_gallery_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_job %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(8,145,178,.1);color:#0891b2"><i class="fa-solid fa-briefcase"></i></div>
       <div><div class="sc-label">Jobs</div><a href="{% url 'admin_job_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_job %}
     <a href="{% url 'admin_job_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_achievement %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(234,88,12,.1);color:#ea580c"><i class="fa-solid fa-trophy"></i></div>
       <div><div class="sc-label">Achievements</div><a href="{% url 'admin_achievement_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_achievement %}
     <a href="{% url 'admin_achievement_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
+  {% if perms.main.view_importantdate %}
   <div class="section-card">
     <div class="sc-left">
       <div class="sc-icon" style="background:rgba(202,138,4,.1);color:#ca8a04"><i class="fa-solid fa-star"></i></div>
       <div><div class="sc-label">Important Dates</div><a href="{% url 'admin_date_list' %}" class="sc-link">View all →</a></div>
     </div>
+    {% if perms.main.add_importantdate %}
     <a href="{% url 'admin_date_create' %}" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i></a>
+    {% endif %}
   </div>
+  {% endif %}
 
 </div>
+{% else %}
+<div class="tbl-wrap" style="padding:40px;text-align:center;color:var(--muted)">
+  <i class="fa-solid fa-circle-info" style="font-size:32px;opacity:0.4;margin-bottom:10px;display:block"></i>
+  You don't have access to any management sections yet. Ask a superuser to assign you a role under
+  {% if request.user.is_superuser %}<a href="{% url 'role_list' %}">Roles &amp; Permissions</a>{% else %}Roles &amp; Permissions{% endif %}.
+</div>
+{% endif %}
 
 <style>
   .section-title { font-size:15px;font-weight:700;margin-bottom:14px;color:#374151; }

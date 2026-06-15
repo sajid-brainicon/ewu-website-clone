@@ -3,11 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from .models import StudentProfile
 
-EWU_STUDENT_DOMAIN = 'std.ewubd.edu'
+EWU_STUDENT_DOMAIN = 'gmail.com'
 
 
 def student_register(request):
-    """Public registration page — only place that still lives in students app."""
     if request.user.is_authenticated:
         return redirect('dashboard')
 
@@ -15,7 +14,7 @@ def student_register(request):
         first_name = request.POST.get('first_name', '').strip()
         last_name  = request.POST.get('last_name', '').strip()
         email      = request.POST.get('email', '').strip().lower()
-        student_id = request.POST.get('student_id', '').strip()
+        #student_id = request.POST.get('student_id', '').strip()
         program    = request.POST.get('program', '')
         password   = request.POST.get('password', '')
         password2  = request.POST.get('password2', '')
@@ -34,10 +33,7 @@ def student_register(request):
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already registered.')
             return render(request, 'student/register.html', ctx)
-        if StudentProfile.objects.filter(student_id=student_id).exists():
-            messages.error(request, 'Student ID already registered.')
-            return render(request, 'student/register.html', ctx)
-
+        
         try:
             username = email.split('@')[0]
             base, counter = username, 1
@@ -49,7 +45,7 @@ def student_register(request):
                 username=username, email=email, password=password,
                 first_name=first_name, last_name=last_name,
             )
-            StudentProfile.objects.create(user=user, student_id=student_id, program=program)
+            StudentProfile.objects.create(user=user, program=program)
             messages.success(request, 'Account created! Please sign in.')
             return redirect('login')
         except Exception as e:
@@ -57,3 +53,6 @@ def student_register(request):
             print(e)
 
     return render(request, 'student/register.html', {'programs': StudentProfile.PROGRAM_CHOICES})
+
+
+#now

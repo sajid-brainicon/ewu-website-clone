@@ -17,8 +17,7 @@
         <i class="fa-solid fa-trash"></i> Yes, Delete
       </button>
     </form>
-    <a href="{% if type == 'Notice' %}{% url 'admin_notice_list' %}{% else %}{% url 'admin_news_list' %}{% endif %}"
-       class="btn btn-ghost">
+    <a href="{% url cancel %}" class="btn btn-ghost">
       <i class="fa-solid fa-xmark"></i> Cancel
     </a>
   </div>

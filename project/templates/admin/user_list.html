@@ -1,0 +1,62 @@
+{% extends 'admin/base_admin.html' %}
+{% block title %}Users{% endblock %}
+{% block nav_users %}active{% endblock %}
+{% block topbar_title %}Users{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div class="breadcrumb">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <span>›</span>
+    <span>Users</span>
+  </div>
+  <h1>Users</h1>
+  <p>Assign roles to control what each user can manage in the dashboard.</p>
+</div>
+
+<div class="tbl-wrap">
+  <div class="tbl-toolbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <h2><i class="fa-solid fa-users" style="color:var(--navy-light);margin-right:6px"></i>All Users</h2>
+      <span class="badge badge-blue">{{ users|length }} total</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th style="width:140px;text-align:center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <strong>{{ u.username }}</strong>
+          {% if u.is_superuser %}<span class="badge badge-amber">Superuser</span>{% endif %}
+          {% if u.is_staff and not u.is_superuser %}<span class="badge badge-gray">Staff</span>{% endif %}
+        </td>
+        <td style="color:var(--muted);font-size:13px">{{ u.email|default:"—" }}</td>
+        <td>
+          {% for g in u.groups.all %}
+            <span class="badge badge-green">{{ g.name }}</span>
+          {% empty %}
+            <span style="color:var(--muted)">—</span>
+          {% endfor %}
+        </td>
+        <td style="text-align:center">
+          <a href="{% url 'user_role_assign' u.pk %}" class="btn btn-warning btn-sm">
+            <i class="fa-solid fa-user-pen"></i> Roles
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

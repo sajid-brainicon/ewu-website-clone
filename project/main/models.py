@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 
 
 class Slider(models.Model):
@@ -149,7 +150,6 @@ class GalleryPhoto(models.Model):
         return self.title
  
  
-# ── JOBS ─────────────────────────────────────────────────────
 class Job(models.Model):
     TYPE_CHOICES = [
         ('full_time',  'Full Time'),
@@ -193,7 +193,24 @@ class Job(models.Model):
         return False
  
     def requirements_list(self):
-        """Returns requirements split into a list for easy template rendering."""
         if self.requirements:
             return [r.strip() for r in self.requirements.splitlines() if r.strip()]
         return []
+
+
+
+class ManagedModule(models.Model):
+    content_type = models.OneToOneField(
+        ContentType,
+        on_delete=models.CASCADE,
+        limit_choices_to={'app_label': 'main'},
+    )
+    display_name = models.CharField(max_length=100)
+    order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['order', 'display_name']
+
+    def __str__(self):
+        return self.display_name

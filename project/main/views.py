@@ -14,8 +14,8 @@ from .models import (
     ChatMessage, Achievement, Job, GalleryCategory, GalleryPhoto
 )
 from students.models import StudentProfile
+from .rbac import require_perm, has_admin_dashboard_access
 
-# ====================== HELPERS ======================
 def _is_staff(user):
     return user.is_authenticated and user.is_staff
 
@@ -136,7 +136,6 @@ def student_dashboard(request):
     })
 
 
-# ====================== CHATBOT ======================
 @csrf_exempt
 def chat_view(request):
     if request.method != "POST":
@@ -181,7 +180,6 @@ def chat_view(request):
         return JsonResponse({"reply": "Sorry, I'm having trouble right now. Please call 09666775577."})
 
 
-# ====================== ADMIN AUTH ======================
 def admin_login(request):
     if request.user.is_authenticated and request.user.is_staff:
         return redirect('admin_dashboard')
@@ -225,7 +223,7 @@ def admin_dashboard(request):
 
 
 # Notice CRUD
-@_staff_required
+@require_perm('main.view_notice')
 def notice_list_admin(request):
     q = request.GET.get('q', '').strip()
     qs = Notice.objects.order_by('-created_at')
@@ -233,7 +231,7 @@ def notice_list_admin(request):
         qs = qs.filter(title__icontains=q)
     return render(request, 'admin/notice_list.html', {'notices': qs, 'q': q})
 
-@_staff_required
+@require_perm('main.add_notice')
 def notice_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -245,7 +243,7 @@ def notice_create(request):
         messages.error(request, 'Title and description required.')
     return render(request, 'admin/notice_form.html', {'edit': False})
 
-@_staff_required
+@require_perm('main.change_notice')
 def notice_edit(request, pk):
     obj = get_object_or_404(Notice, pk=pk)
     if request.method == 'POST':
@@ -260,7 +258,7 @@ def notice_edit(request, pk):
         messages.error(request, 'Title and description required.')
     return render(request, 'admin/notice_form.html', {'obj': obj, 'edit': True})
 
-@_staff_required
+@require_perm('main.delete_notice')
 def notice_delete(request, pk):
     obj = get_object_or_404(Notice, pk=pk)
     if request.method == 'POST':
@@ -271,7 +269,7 @@ def notice_delete(request, pk):
 
 
 # News CRUD
-@_staff_required
+@require_perm('main.view_news')
 def news_list_admin(request):
     q = request.GET.get('q', '').strip()
     qs = News.objects.order_by('-created_at')
@@ -279,7 +277,7 @@ def news_list_admin(request):
         qs = qs.filter(title__icontains=q)
     return render(request, 'admin/news_list.html', {'news_list': qs, 'q': q})
 
-@_staff_required
+@require_perm('main.add_news')
 def news_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -292,7 +290,7 @@ def news_create(request):
         messages.error(request, 'Title, description and image required.')
     return render(request, 'admin/news_form.html', {'edit': False})
 
-@_staff_required
+@require_perm('main.change_news')
 def news_edit(request, pk):
     obj = get_object_or_404(News, pk=pk)
     if request.method == 'POST':
@@ -309,7 +307,7 @@ def news_edit(request, pk):
         messages.error(request, 'Title and description required.')
     return render(request, 'admin/news_form.html', {'obj': obj, 'edit': True})
 
-@_staff_required
+@require_perm('main.delete_news')
 def news_delete(request, pk):
     obj = get_object_or_404(News, pk=pk)
     if request.method == 'POST':
@@ -320,12 +318,12 @@ def news_delete(request, pk):
 
 
 # Slider CRUD
-@_staff_required
+@require_perm('main.view_slider')
 def slider_list(request):
     sliders = Slider.objects.order_by('order', 'id')
     return render(request, 'admin/slider_list.html', {'sliders': sliders})
 
-@_staff_required
+@require_perm('main.add_slider')
 def slider_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -340,7 +338,7 @@ def slider_create(request):
         messages.error(request, 'Title and image required.')
     return render(request, 'admin/slider_form.html', {'edit': False})
 
-@_staff_required
+@require_perm('main.change_slider')
 def slider_edit(request, pk):
     obj = get_object_or_404(Slider, pk=pk)
     if request.method == 'POST':
@@ -355,7 +353,7 @@ def slider_edit(request, pk):
         return redirect('admin_slider_list')
     return render(request, 'admin/slider_form.html', {'obj': obj, 'edit': True})
 
-@_staff_required
+@require_perm('main.delete_slider')
 def slider_delete(request, pk):
     obj = get_object_or_404(Slider, pk=pk)
     if request.method == 'POST':
@@ -366,11 +364,11 @@ def slider_delete(request, pk):
 
 
 # Event CRUD
-@_staff_required
+@require_perm('main.view_event')
 def event_list(request):
     return render(request, 'admin/event_list.html', {'events': Event.objects.order_by('date')})
 
-@_staff_required
+@require_perm('main.add_event')
 def event_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -387,7 +385,7 @@ def event_create(request):
         messages.error(request, 'Title and date required.')
     return render(request, 'admin/event_form.html', {'edit': False, 'color_choices': getattr(Event, 'BADGE_COLORS', [])})
 
-@_staff_required
+@require_perm('main.change_event')
 def event_edit(request, pk):
     obj = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
@@ -402,7 +400,7 @@ def event_edit(request, pk):
         return redirect('admin_event_list')
     return render(request, 'admin/event_form.html', {'obj': obj, 'edit': True, 'color_choices': getattr(Event, 'BADGE_COLORS', [])})
 
-@_staff_required
+@require_perm('main.delete_event')
 def event_delete(request, pk):
     obj = get_object_or_404(Event, pk=pk)
     if request.method == 'POST':
@@ -413,11 +411,11 @@ def event_delete(request, pk):
 
 
 # Important Date CRUD
-@_staff_required
+@require_perm('main.view_importantdate')
 def date_list(request):
     return render(request, 'admin/date_list.html', {'dates': ImportantDate.objects.order_by('date')})
 
-@_staff_required
+@require_perm('main.add_importantdate')
 def date_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -432,7 +430,7 @@ def date_create(request):
         messages.error(request, 'Title and date required.')
     return render(request, 'admin/date_form.html', {'edit': False, 'cat_choices': getattr(ImportantDate, 'CATEGORY_CHOICES', [])})
 
-@_staff_required
+@require_perm('main.change_importantdate')
 def date_edit(request, pk):
     obj = get_object_or_404(ImportantDate, pk=pk)
     if request.method == 'POST':
@@ -446,7 +444,7 @@ def date_edit(request, pk):
         return redirect('admin_date_list')
     return render(request, 'admin/date_form.html', {'obj': obj, 'edit': True, 'cat_choices': getattr(ImportantDate, 'CATEGORY_CHOICES', [])})
 
-@_staff_required
+@require_perm('main.delete_importantdate')
 def date_delete(request, pk):
     obj = get_object_or_404(ImportantDate, pk=pk)
     if request.method == 'POST':
@@ -457,11 +455,11 @@ def date_delete(request, pk):
 
 
 # Achievement CRUD
-@_staff_required
+@require_perm('main.view_achievement')
 def achievement_list(request):
     return render(request, 'admin/achievement_list.html', {'achievements': Achievement.objects.order_by('-achieved_on')})
 
-@_staff_required
+@require_perm('main.add_achievement')
 def achievement_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -478,7 +476,7 @@ def achievement_create(request):
         messages.error(request, 'Title and date required.')
     return render(request, 'admin/achievement_form.html', {'edit': False})
 
-@_staff_required
+@require_perm('main.change_achievement')
 def achievement_edit(request, pk):
     obj = get_object_or_404(Achievement, pk=pk)
     if request.method == 'POST':
@@ -493,7 +491,7 @@ def achievement_edit(request, pk):
         return redirect('admin_achievement_list')
     return render(request, 'admin/achievement_form.html', {'obj': obj, 'edit': True})
 
-@_staff_required
+@require_perm('main.delete_achievement')
 def achievement_delete(request, pk):
     obj = get_object_or_404(Achievement, pk=pk)
     if request.method == 'POST':
@@ -504,11 +502,11 @@ def achievement_delete(request, pk):
 
 
 # Job CRUD
-@_staff_required
+@require_perm('main.view_job')
 def job_list_admin(request):
     return render(request, 'admin/job_list.html', {'jobs': Job.objects.order_by('-id')})
 
-@_staff_required
+@require_perm('main.add_job')
 def job_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -532,7 +530,7 @@ def job_create(request):
         'type_choices': getattr(Job, 'TYPE_CHOICES', [])
     })
 
-@_staff_required
+@require_perm('main.change_job')
 def job_edit(request, pk):
     obj = get_object_or_404(Job, pk=pk)
     if request.method == 'POST':
@@ -553,7 +551,7 @@ def job_edit(request, pk):
         'type_choices': getattr(Job, 'TYPE_CHOICES', [])
     })
 
-@_staff_required
+@require_perm('main.delete_job')
 def job_delete(request, pk):
     obj = get_object_or_404(Job, pk=pk)
     if request.method == 'POST':
@@ -564,14 +562,14 @@ def job_delete(request, pk):
 
 
 # Gallery CRUD
-@_staff_required
+@require_perm('main.view_galleryphoto')
 def gallery_list_admin(request):
     return render(request, 'admin/gallery_list.html', {
         'photos': GalleryPhoto.objects.select_related('category').order_by('-uploaded_at'),
         'categories': GalleryCategory.objects.all(),
     })
 
-@_staff_required
+@require_perm('main.add_galleryphoto')
 def gallery_create(request):
     if request.method == 'POST':
         title = request.POST.get('title', '').strip()
@@ -590,7 +588,7 @@ def gallery_create(request):
         'categories': GalleryCategory.objects.all()
     })
 
-@_staff_required
+@require_perm('main.change_galleryphoto')
 def gallery_edit(request, pk):
     obj = get_object_or_404(GalleryPhoto, pk=pk)
     if request.method == 'POST':
@@ -608,7 +606,7 @@ def gallery_edit(request, pk):
         'obj': obj, 'edit': True, 'categories': GalleryCategory.objects.all()
     })
 
-@_staff_required
+@require_perm('main.delete_galleryphoto')
 def gallery_delete(request, pk):
     obj = get_object_or_404(GalleryPhoto, pk=pk)
     if request.method == 'POST':
@@ -658,25 +656,24 @@ def unified_logout(request):
 def unified_dashboard(request):
     today = datetime.date.today()
     
-    # Ensure profile exists for students
     profile = getattr(request.user, 'student_profile', None)
 
-    # Base context
     context = {
         'title': 'Dashboard',
         'profile': profile,
         'today': today,
     }
 
-    if request.user.is_staff:
-        # === ADMIN DASHBOARD ===
+    if has_admin_dashboard_access(request.user):
         context.update({
             'total_notices': Notice.objects.count(),
             'total_news': News.objects.count(),
             'total_events': Event.objects.filter(date__gte=today).count(),
             'total_jobs': Job.objects.filter(is_active=True).count(),
             'total_achievements': Achievement.objects.filter(is_active=True).count(),
-            
+            'total_sliders': Slider.objects.count(),
+            'total_gallery': GalleryPhoto.objects.filter(is_active=True).count(),
+
             'recent_notices': Notice.objects.order_by('-created_at')[:5],
             'recent_news': News.objects.order_by('-created_at')[:5],
             'upcoming_events': Event.objects.filter(date__gte=today).order_by('date')[:5],
@@ -685,7 +682,6 @@ def unified_dashboard(request):
         return render(request, 'admin/dashboard.html', context)
     
     else:
-        # === STUDENT DASHBOARD ===
         context.update({
             'notices': Notice.objects.order_by('-created_at')[:10],
             'news': News.objects.order_by('-created_at')[:8],
@@ -695,12 +691,10 @@ def unified_dashboard(request):
         return render(request, 'student/dashboard.html', context)
 
 def _get_profile(request):
-    """Returns student profile or None."""
     return getattr(request.user, 'student_profile', None)
  
  
 def _student_ctx(request):
-    """Base context injected into every student-facing page."""
     return {'profile': _get_profile(request)}
  
  
